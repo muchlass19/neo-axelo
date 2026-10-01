@@ -5,6 +5,7 @@ import "../styles/global.css";
 import Navbar from "../components/Navbar.astro";
 import Preloader from "../components/Preloader.astro";
 ---
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -16,8 +17,20 @@ import Preloader from "../components/Preloader.astro";
     <title>Axelo Dev</title>
   </head>
   <body class="bg-base-100 px-4 md:px-12 text-foreground">
-	<Preloader></Preloader>
-	<Navbar></Navbar>
+    <Preloader />
+    <Navbar />
     <slot />
+
+    <script>
+      const originalTitle = document.title;
+
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+          document.title = "👋 Come back! We miss you.";
+        } else {
+          document.title = originalTitle;
+        }
+      });
+    </script>
   </body>
 </html>
