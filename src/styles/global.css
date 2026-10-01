@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+@theme {
+  /* default color */
+  --color-base-100: #1e1e1e;
+  --color-base-200: #252526;
+  --color-base-300: #3e3e42;
+  --color-foreground: #eeeeee;
+  --color-foreground-muted: #818081;
+  --color-highlight: #fd551d;
+
+  /* font */
+  --font-archivo: "Archivo Black", sans-serif;
+  --font-ibm: "IBM Plex Mono", monospace;
+}
+
+body {
+    @apply selection:bg-highlight selection:text-base-100;
+}
+
+.hero-copy {
+    flex: 1;
+}
+
+.hero-copy h1 .block-line-wrapper {
+    position: relative;
+    width: max-content;
+    display: block;
+}
+
+.hero-copy h1 .block-line {
+    position: relative;
+    display: block;
+}
+
+.hero-copy h1 .block-revealer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 101%;
+    height: 101%;
+    pointer-events: none;
+}
+
+.hero-copy h1 .block-revealer.block-orange {
+    @apply bg-highlight;
+    z-index: 2;
+}
+
+.hero-copy h1 .block-revealer.block-white {
+    @apply bg-foreground;
+    z-index: 1;
+}
+
+.preloader-overlay {
+    --wipe: 0deg;
+    -webkit-mask: conic-gradient(
+        from 0deg at 0% 100%,
+        transparent var(--wipe),
+        #1e1e1e var(--wipe)
+    )
+}
+
+.preloader-copy p .char {
+    opacity: 0;
+}
+
+.preloader-block {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 16px;
+    height: 16px;
+    @apply bg-base-100;
+}
+
+.preloader-block .preloader-block {
+    left: calc(100% + 2px);
+    transform-origin: left center;
+}
