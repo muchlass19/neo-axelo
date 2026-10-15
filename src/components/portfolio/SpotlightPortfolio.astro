@@ -6,10 +6,30 @@ import daihatsuOm from "../../../public/projects/daihatsu-om.png";
 import daihatsuSparepart from "../../../public/projects/daihatsu-sparepart.png";
 
 const projectDefinitions = [
-  { image: anessaWeb, name: "Anessa Main Website" },
-  { image: daihatsuWeb, name: "Daihatsu Main Website" },
-  { image: daihatsuOm, name: "Daihatsu Owner Manual PWA" },
-  { image: daihatsuSparepart, name: "Daihatsu Sparepart Catalog" },
+  {
+    image: anessaWeb,
+    name: "Anessa Main Website",
+    summary: "Corporate marketing site for Anessa skincare",
+    link: "https://www.anessa.id/",
+  },
+  {
+    image: daihatsuWeb,
+    name: "Daihatsu Main Website",
+    summary: "Official landing page for Daihatsu vehicles",
+    link: "https://daihatsu.co.id",
+  },
+  {
+    image: daihatsuOm,
+    name: "Daihatsu Owner Manual PWA",
+    summary: "Progressive web app for vehicle owner manuals",
+    link: "https://daihatsu.co.id/ownership/owners-manual/webapp/opening",
+  },
+  {
+    image: daihatsuSparepart,
+    name: "Daihatsu Sparepart Catalog",
+    summary: "Digital catalog for genuine Daihatsu spare parts",
+    link: "https://daihatsu.co.id/sparepart/katalog-bengkel",
+  },
 ];
 
 // Urutan 8 item: daftar asal diulang 2x.
@@ -26,8 +46,21 @@ const paddedTotal = String(totalProjectCount).padStart(2, "0");
   <div class="project-images">
     {
       projects.map((project) => (
-        <div class="project-img">
-          <Image src={project.image} alt={project.name} loading="lazy" decoding="async" />
+        <div class="project-img" data-summary={project.summary}>
+          <a
+            href={project.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="project-link"
+            aria-label={project.name}
+          >
+            <Image
+              src={project.image}
+              alt={project.name}
+              loading="lazy"
+              decoding="async"
+            />
+          </a>
         </div>
       ))
     }
@@ -83,6 +116,12 @@ const paddedTotal = String(totalProjectCount).padStart(2, "0");
     object-position: top center;
   }
 
+  .spotlight .project-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
   .spotlight .project-names {
     position: absolute;
     right: 2rem;
@@ -101,6 +140,12 @@ const paddedTotal = String(totalProjectCount).padStart(2, "0");
   .spotlight .project-images,
   .spotlight .project-names p {
     will-change: transform;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .spotlight .project-img {
+      cursor: none;
+    }
   }
 
   @media (max-width: 1000px) {
@@ -123,7 +168,9 @@ const paddedTotal = String(totalProjectCount).padStart(2, "0");
   gsap.registerPlugin(ScrollTrigger);
 
   function initSpotlight() {
-    const spotlightSection = document.querySelector(".spotlight") as HTMLElement | null;
+    const spotlightSection = document.querySelector(
+      ".spotlight",
+    ) as HTMLElement | null;
     if (!spotlightSection) return;
 
     // Lenis: inisialisasi sekali saja (guard global).
@@ -138,33 +185,78 @@ const paddedTotal = String(totalProjectCount).padStart(2, "0");
       (window as any).__axeloLenis = lenis;
     }
 
-    const projectIndex = spotlightSection.querySelector(".project-index h1") as HTMLElement | null;
-    const projectImgs = spotlightSection.querySelectorAll<HTMLElement>(".project-img");
-    const projectImagesContainer = spotlightSection.querySelector(".project-images") as HTMLElement | null;
-    const projectNames = spotlightSection.querySelectorAll<HTMLElement>(".project-names p");
-    const projectNamesContainer = spotlightSection.querySelector(".project-names") as HTMLElement | null;
+    const projectIndex = spotlightSection.querySelector(
+      ".project-index h1",
+    ) as HTMLElement | null;
+    const projectImgs =
+      spotlightSection.querySelectorAll<HTMLElement>(".project-img");
+    const projectImagesContainer = spotlightSection.querySelector(
+      ".project-images",
+    ) as HTMLElement | null;
+    const projectNames =
+      spotlightSection.querySelectorAll<HTMLElement>(".project-names p");
+    const projectNamesContainer = spotlightSection.querySelector(
+      ".project-names",
+    ) as HTMLElement | null;
 
-    if (!projectIndex || !projectImagesContainer || !projectNamesContainer) return;
+    if (!projectIndex || !projectImagesContainer || !projectNamesContainer)
+      return;
 
     const totalProjectCount = projectNames.length;
     if (totalProjectCount === 0) return;
 
+    // Summary tooltip mengikuti kursor (desktop only).
+    const isDesktop = window.matchMedia(
+      "(hover: hover) and (pointer: fine) and (min-width: 1001px)",
+    ).matches;
+
+    if (isDesktop) {
+      const tooltip = document.createElement("div");
+      tooltip.setAttribute("aria-hidden", "true");
+      tooltip.style.cssText =
+        "position:fixed;left:0;top:0;pointer-events:none;opacity:0;transition:opacity 150ms ease;" +
+        "background:rgba(180,180,180,0.35);color:#fff;font-size:0.8rem;line-height:1.15;" +
+        "width:160px;height:160px;padding:12px;box-sizing:border-box;display:flex;align-items:center;" +
+        "justify-content:center;text-align:center;border-radius:50%;border:1px solid rgba(255,255,255,0.25);" +
+        "max-width:160px;max-height:160px;overflow:hidden;z-index:9999;" +
+        "text-shadow:0 1px 6px rgba(0,0,0,0.8);";
+      document.body.appendChild(tooltip);
+
+      spotlightSection
+        .querySelectorAll<HTMLElement>(".project-img")
+        .forEach((img) => {
+          img.addEventListener("mouseenter", () => {
+            tooltip.textContent = img.getAttribute("data-summary") || "";
+            tooltip.style.opacity = "1";
+          });
+          img.addEventListener("mousemove", (event: MouseEvent) => {
+            tooltip.style.left = `${event.clientX + 16}px`;
+            tooltip.style.top = `${event.clientY + 16}px`;
+          });
+          img.addEventListener("mouseleave", () => {
+            tooltip.style.opacity = "0";
+          });
+        });
+    }
+
     const measure = () => {
       const spotlightSectionHeight = spotlightSection.offsetHeight;
-      const spotlightSectionPadding = parseFloat(getComputedStyle(spotlightSection).padding) || 0;
+      const spotlightSectionPadding =
+        parseFloat(getComputedStyle(spotlightSection).padding) || 0;
       const projectIndexHeight = projectIndex.offsetHeight;
       const containerHeight = projectNamesContainer.offsetHeight;
       const imagesHeight = projectImagesContainer.offsetHeight;
 
       const moveDistanceIndex =
-        spotlightSectionHeight - spotlightSectionPadding * 2 - projectIndexHeight;
+        spotlightSectionHeight -
+        spotlightSectionPadding * 2 -
+        projectIndexHeight;
       const moveDistanceNames =
         spotlightSectionHeight - spotlightSectionPadding * 2 - containerHeight;
       const moveDistanceImages = window.innerHeight - imagesHeight;
 
       const imgActivationThreshold = window.innerHeight / 2;
 
-      // Hapus ScrollTrigger sebelumnya untuk mencegah duplikasi saat HMR/reload.
       ScrollTrigger.getAll().forEach((trigger: any) => {
         if (trigger.trigger === spotlightSection) trigger.kill();
       });
@@ -186,11 +278,16 @@ const paddedTotal = String(totalProjectCount).padStart(2, "0");
           projectIndex.textContent = `${String(currentIndex).padStart(2, "0")}/${String(totalProjectCount).padStart(2, "0")}`;
 
           gsap.set(projectIndex, { y: progress * moveDistanceIndex });
-          gsap.set(projectImagesContainer, { y: progress * moveDistanceImages });
+          gsap.set(projectImagesContainer, {
+            y: progress * moveDistanceImages,
+          });
 
           projectImgs.forEach((img) => {
             const imgRect = img.getBoundingClientRect();
-            if (imgRect.top <= imgActivationThreshold && imgRect.bottom >= imgActivationThreshold) {
+            if (
+              imgRect.top <= imgActivationThreshold &&
+              imgRect.bottom >= imgActivationThreshold
+            ) {
               gsap.set(img, { opacity: 1 });
             } else {
               gsap.set(img, { opacity: 0.5 });
@@ -202,10 +299,18 @@ const paddedTotal = String(totalProjectCount).padStart(2, "0");
             const endProgress = (index + 1) / totalProjectCount;
             const projectProgress = Math.max(
               0,
-              Math.min(1, (progress - startProgress) / (endProgress - startProgress)),
+              Math.min(
+                1,
+                (progress - startProgress) / (endProgress - startProgress),
+              ),
             );
             gsap.set(p, { y: -projectProgress * moveDistanceNames });
-            gsap.set(p, { color: projectProgress > 0 && projectProgress < 1 ? "#ffffff" : "#4a4a4a" });
+            gsap.set(p, {
+              color:
+                projectProgress > 0 && projectProgress < 1
+                  ? "#ffffff"
+                  : "#4a4a4a",
+            });
           });
         },
       });
@@ -226,7 +331,9 @@ const paddedTotal = String(totalProjectCount).padStart(2, "0");
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initSpotlight, { once: true });
+    document.addEventListener("DOMContentLoaded", initSpotlight, {
+      once: true,
+    });
   } else {
     initSpotlight();
   }
