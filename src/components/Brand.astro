@@ -1,0 +1,123 @@
+---
+import { Image } from "astro:assets";
+import astra from "../../public/astra.svg";
+import bcalife from "../../public/bcalife.png";
+import byd from "../../public/byd.svg";
+import chery from "../../public/chery.svg";
+import daihatsu from "../../public/daihatsu.svg";
+import danareksa from "../../public/danareksa.png";
+---
+
+<div class="brand-slider left-anime-text flex items-center overflow-hidden py-4">
+  <Image class="brand w-[120px]" src={astra} alt="Astra Logo" />
+  <Image class="brand w-[120px]" src={bcalife} alt="BCALife Logo" />
+  <Image class="brand w-[120px]" src={byd} alt="BYD Logo" />
+  <Image class="brand w-[120px]" src={chery} alt="Chery Logo" />
+  <Image class="brand w-[120px]" src={daihatsu} alt="Daihatsu Logo" />
+  <Image class="brand w-[120px]" src={danareksa} alt="Danareksa Logo" />
+</div>
+
+<script>
+  import gsap from "gsap";
+  import { Observer } from "gsap/Observer";
+
+  gsap.registerPlugin(Observer);
+
+  interface HorizontalLoopConfig {
+    speed?: number;
+    paddingRight?: number;
+  }
+
+  const scrollingText = gsap.utils.toArray<HTMLElement>(".brand-slider .brand");
+
+  const tl = horizontalLoop(scrollingText, {
+    speed: 0.25,
+    paddingRight: 8,
+  });
+
+  Observer.create({
+    onChangeY(self) {
+      const factor = self.deltaY < 0 ? -1 : 1;
+
+      gsap
+        .timeline({
+          defaults: { ease: "none" },
+        })
+        .to(tl, {
+          timeScale: factor * 2.5,
+          duration: 0.2,
+          overwrite: true,
+        })
+        .to(
+          tl,
+          {
+            timeScale: factor,
+            duration: 1,
+          },
+          "+=0.3",
+        );
+    },
+  });
+
+  function horizontalLoop(
+    items: HTMLElement[],
+    config: HorizontalLoopConfig = {},
+  ): gsap.core.Timeline {
+    const gap = config.paddingRight ?? 8;
+    const speed = (config.speed ?? 1) * 100;
+
+    const tl = gsap.timeline({
+      repeat: -1,
+      defaults: { ease: "none" },
+    });
+
+    if (items.length === 0) return tl;
+
+    const container = items[0].parentElement;
+    if (!container) return tl;
+
+    const containerWidth = container.clientWidth;
+
+    const positions = items.map((element) => ({
+      element,
+      width: element.getBoundingClientRect().width,
+    }));
+
+    const totalWidth = positions.reduce(
+      (total, item) => total + item.width + gap,
+      0,
+    );
+
+    let currentX = 0;
+
+    positions.forEach(({ element, width }) => {
+      const startX = currentX;
+      const distance = width + gap;
+      const duration = distance / speed;
+
+      gsap.set(element, { x: startX });
+
+      tl.to(
+        element,
+        {
+          x: startX - totalWidth,
+          duration: totalWidth / speed,
+        },
+        0,
+      );
+
+      // Setelah keluar dari kiri, tempatkan logo di ujung kanan.
+      tl.set(
+        element,
+        {
+          x: startX + totalWidth,
+        },
+        totalWidth / speed,
+      );
+
+      currentX += distance;
+    });
+
+    return tl;
+  }
+</script>

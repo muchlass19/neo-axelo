@@ -1,0 +1,46 @@
+---
+import Button from "./ui/Button.astro";
+---
+
+<div class="px-4 md:px-12">
+  <div class="mx-auto hero-copy p-8 h-full flex flex-col justify-center gap-8">
+    <h1
+      class="text-[clamp(4rem,14vw,16rem)] md:text-[clamp(4rem,16vw,16rem)] leading-[0.85] font-archivo font-bold"
+    >
+      AXELO.DEV
+    </h1>
+  </div>
+
+  <div
+    class="grid md:grid-cols-2 py-4 my-4 md:py-12 md:my-12 uppercase tracking-tight font-ibm"
+  >
+    <div class="text-lg text-foreground-muted md:text-foreground">
+      What we'll do
+    </div>
+    <div>
+      <p class="text-2xl md:text-lg">
+        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Sequi ad
+        aspernatur earum iste illo commodi facilis neque facere minus corporis.
+      </p>
+
+      <div class="mt-4 w-full">
+        <Button title="See The Work" size="sm" />
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="grid md:grid-cols-2 py-4 md:py-12 uppercase tracking-tight font-ibm"
+  >
+    <div class="text-lg text-foreground-muted md:text-foreground">Socials</div>
+    <div
+      class="text-2xl md:text-lg grid grid-cols-3 gap-2 md:flex md:justify-between underline"
+    >
+      <a href="#">Instagram</a>
+      <a href="#">Tiktok</a>
+      <a href="#">LinkedIn</a>
+      <a href="#">X/Twitter</a>
+      <a href="#">GitHub</a>
+    </div>
+  </div>
+</div>
