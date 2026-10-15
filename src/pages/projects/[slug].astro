@@ -1,0 +1,675 @@
+---
+import { Image } from "astro:assets";
+import Layout from "../../layouts/Layout.astro";
+
+import anessaWeb from "../../../public/projects/anessa/anessa-web.png";
+import anessaBackground from '../../../public/projects/anessa/anessa_background.jpg';
+import anessaChallenge from '../../../public/projects/anessa/anessa_challenge.jpg'
+import daihatsuWeb from "../../../public/projects/daihatsu-web.png";
+import daihatsuOm from "../../../public/projects/daihatsu-om.png";
+import daihatsuSparepart from "../../../public/projects/daihatsu-sparepart.png";
+
+export function getStaticPaths() {
+  return [
+    {
+      params: { slug: "anessa-web" },
+      props: {
+        title: "Anessa Main Website",
+        image: anessaWeb,
+        about:
+          "Introducing Anessa’s sun care expertise to Indonesia through a refined digital experience",
+        services: ["UI Design", "UX Design", "Web Development"],
+        backgroundImage: anessaBackground,
+        backgroundTitle:
+          "Bringing Anessa’s sun care expertise to Indonesia through a refined digital experience",
+        backgroundDesc:
+          "<p>Originating from Japan, Anessa is a premium sun care brand known for its advanced UV protection technology and skincare expertise. As the brand continues to connect with consumers in Indonesia, its digital presence plays an important role in communicating its product innovations, benefits, and commitment to everyday sun protection.</p><p>The project focused on creating a digital experience that reflects Anessa’s premium identity while making it easier for consumers to explore its product range, understand its sun care solutions, and discover the brand’s approach to protecting skin under the sun.</p>",
+        challengeImage: anessaChallenge,
+        challengeTitle: "Balancing advanced sun care technology with a premium digital experience.",
+        challengeDesc: "<p>Anessa’s challenge was to communicate its advanced UV protection technology and skincare benefits in a way that feels clear, engaging, and relevant to Indonesian consumers. With a diverse product range designed for different skin needs and lifestyles, the digital experience needed to make product discovery intuitive without overwhelming visitors with technical information.</p><p>The website also needed to reflect Anessa’s premium Japanese identity while helping consumers understand the benefits of each product and find the right sun care solutions for their needs. Balancing product education, brand storytelling, and intuitive navigation was essential to creating a digital experience that feels both informative and refined.</p>"
+      },
+    },
+    {
+      params: { slug: "daihatsu-web" },
+      props: {
+        title: "Daihatsu Main Website",
+        image: daihatsuWeb,
+        about:
+          "Bringing Daihatsu’s automotive legacy to life through a modern digital experience for Indonesia",
+        services: ["UI Design", "UX Design", "Web Development"],
+        backgroundVideo: "/projects/daihatsu_background.mp4",
+        backgroundTitle:
+          "Bringing Daihatsu's Sahabat spirit to millions of Indonesians through a modern digital flagship",
+        backgroundDesc:
+          "<p>Daihatsu has been a Sahabat (close companion) for Indonesian families for decades, with a diverse lineup spanning city cars, MPVs, and commercial vehicles. As car buying journeys increasingly begin online, the brand needed a digital flagship that could carry that trust into the modern web.</p><p>The project focused on creating a website where visitors can explore every model, compare specifications and prices, find nearby dealers, and book test drives, all within an experience that feels warm, reliable, and unmistakably Daihatsu.</p>",
+        challengeVideo: "/projects/daihatsu_challenge.mp4",
+        challengeTitle: "Balancing rich product content with a fast, effortless browsing experience.",
+        challengeDesc: "<p>With many models, variants, colors, and price lists to present, the challenge was keeping the experience light and intuitive instead of overwhelming. Visitors range from first-time buyers to loyal owners, each arriving with different questions.</p><p>The website needed to surface the right information at the right moment, from model discovery to dealer contact, without sacrificing loading speed or clarity. Balancing comprehensive content, clear navigation, and consistent performance across devices was essential to an experience that feels effortless from first visit to test drive booking.</p>"
+      },
+    },
+    {
+      params: { slug: "daihatsu-om" },
+      props: {
+        title: "Daihatsu Owner Manual PWA",
+        image: daihatsuOm,
+        about:
+          "Transforming Daihatsu’s owner manuals into an accessible, app-like digital experience through progressive web technology",
+        services: ["UI Design", "UX Design", "Web Development"],
+        backgroundVideo: "/projects/daihatsu_background.mp4",
+        backgroundTitle:
+          "Turning thick paper manuals into a digital companion every Daihatsu owner carries",
+        backgroundDesc:
+          "<p>Every Daihatsu vehicle comes with a printed owner's manual, yet these booklets are easily lost, damaged, or left at home exactly when they are needed most. Daihatsu saw an opportunity to give owners a better alternative that lives on the device they always carry.</p><p>The project focused on rebuilding the owner manual as a progressive web app: installable, searchable, and available offline, so guidance on maintenance, warning indicators, and everyday operation is always within reach.</p>",
+        challengeVideo: "/projects/daihatsu_challenge.mp4",
+        challengeTitle: "Making dense technical documentation searchable and readable on any screen.",
+        challengeDesc: "<p>Hundreds of pages of procedures, diagrams, and safety warnings had to be restructured for small screens without losing accuracy. Owners in urgent situations need answers in seconds, not after flipping through chapters.</p><p>The experience needed powerful search, clear hierarchies, and offline caching that keeps working with poor connectivity. Balancing technical precision, readability, and app-like performance was essential to a manual owners genuinely trust and use.</p>"
+      },
+    },
+    {
+      params: { slug: "daihatsu-sparepart" },
+      props: {
+        title: "Daihatsu Sparepart Catalog",
+        image: daihatsuSparepart,
+        about:
+          "Digitizing Daihatsu’s spare parts catalog to simplify parts discovery through an intuitive, user-friendly experience",
+        services: ["UI Design", "UX Design", "Web Development"],
+        backgroundVideo: "/projects/daihatsu_background.mp4",
+        backgroundTitle:
+          "Digitizing thousands of genuine parts into a catalog anyone can navigate",
+        backgroundDesc:
+          "<p>Finding the right spare part used to mean flipping through printed catalogs or relying entirely on workshop staff, a slow process prone to error. With countless parts across many models and years, Daihatsu needed a digital catalog that workshops and owners could explore with confidence.</p><p>The project focused on creating a catalog experience where parts can be browsed by model and category, identified precisely by part number, and verified as genuine Daihatsu components.</p>",
+        challengeVideo: "/projects/daihatsu_challenge.mp4",
+        challengeTitle: "Simplifying complex part hierarchies without losing technical precision.",
+        challengeDesc: "<p>Spare part data is inherently complex: overlapping model years, variant-specific components, and long part numbers that must match exactly. Simplifying this into a friendly interface risked hiding details professionals depend on.</p><p>The catalog needed intuitive browsing for casual users alongside precise filtering for experts, with zero tolerance for mismatched parts. Balancing simplicity, depth, and data accuracy was essential to a catalog that speeds up ordering instead of complicating it.</p>"
+      },
+    },
+  ];
+}
+
+const { title, image, about, services, backgroundImage, backgroundVideo, backgroundTitle, backgroundDesc, challengeTitle, challengeDesc, challengeImage, challengeVideo } = Astro.props;
+---
+
+<Layout>
+  <section class="project-detail-hero">
+    <div class="project-hero-frame">
+      <h1 class="project-hero-title font-ibm text-white">{title}</h1>
+      <div class="project-hero-image">
+        <Image src={image} alt={title} loading="eager" decoding="async" />
+      </div>
+    </div>
+  </section>
+
+  <section class="project-about">
+    <div class="about-left">
+      <p class="about-label">About</p>
+      <p class="about-desc">{about}</p>
+    </div>
+    <div class="about-right">
+      <p class="about-label">Services</p>
+      <ul class="service-list">
+        {(services ?? []).map((service) => <li class="service-item text-2xl" data-text={service}>{service}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <section class="project-background grid grid-cols-2 w-full">
+    <div class="background-left flex flex-col justify-center gap-2">
+      <p class="about-label">Background</p>
+      <p class="background-title">{backgroundTitle}</p>
+      <div class="background-body text-foreground-muted" set:html={backgroundDesc} />
+    </div>
+    <div class="background-right">
+      {backgroundVideo ? (
+        <video class="w-full h-full object-cover" src={backgroundVideo} autoplay muted loop playsinline preload="auto" aria-label={backgroundTitle} />
+      ) : (
+        <Image class="w-full h-full object-cover" src={backgroundImage} alt={backgroundTitle} loading="eager" decoding="async" />
+      )}
+    </div>
+  </section>
+
+  <section class="project-challenge grid grid-cols-2 w-full">
+    <div class="challenge-left">
+      {challengeVideo ? (
+        <video class="w-full h-full object-cover" src={challengeVideo} autoplay muted loop playsinline preload="auto" aria-label={challengeTitle} />
+      ) : (
+        <Image class="w-full h-full object-cover" src={challengeImage} alt={challengeTitle} />
+      )}
+    </div>
+    <div class="challenge-right flex flex-col justify-center gap-2">
+      <p class="about-label">Challenge</p>
+      <p class="background-title">{challengeTitle}</p>
+      <div class="background-body text-foreground-muted" set:html={challengeDesc} />
+    </div>
+  </section>
+
+  <script>
+    import gsap from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    console.log("[slug] script loaded, readyState:", document.readyState);
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const initReveal = () => {
+      try {
+        const imageBox = document.querySelector(
+          ".project-hero-image",
+        ) as HTMLElement | null;
+        const imageEl = imageBox?.querySelector("img") as HTMLElement | null;
+        if (!imageBox) return;
+
+        gsap.set(imageBox, { clipPath: "inset(100% 0 0 0)" });
+        if (imageEl)
+          gsap.set(imageEl, { scale: 1.5, transformOrigin: "center center" });
+
+        const tl = gsap.timeline({ delay: 0.15 });
+        tl.to(imageBox, {
+          clipPath: "inset(0% 0 0 0)",
+          duration: 1.1,
+          ease: "power3.out",
+        });
+
+        if (imageEl) {
+          tl.to(
+            imageEl,
+            {
+              scale: 1,
+              duration: 1.1,
+              ease: "power3.out",
+            },
+            0,
+          );
+        }
+      } catch (err) {
+        console.error("[hero reveal] failed:", err);
+      }
+
+      ScrollTrigger.refresh();
+    };
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initReveal, { once: true });
+    } else {
+      initReveal();
+    }
+
+    // Reveal clip-path yang sama seperti gambar hero, untuk gambar
+    // background & challenge. Replay setiap section masuk viewport,
+    // baik scroll dari atas maupun dari bawah.
+    const initScrollReveals = () => {
+      try {
+        const boxes = document.querySelectorAll(".background-right, .challenge-left");
+        if (!boxes.length) return;
+
+        boxes.forEach((box) => {
+          const el = box as HTMLElement;
+          if ((el as any).__revealReady) return;
+          (el as any).__revealReady = true;
+
+          const img = el.querySelector("img, video") as HTMLElement | null;
+
+          gsap.set(el, { clipPath: "inset(100% 0 0 0)" });
+          if (img) gsap.set(img, { scale: 1.5, transformOrigin: "center center" });
+
+          const tl = gsap.timeline({ paused: true });
+          tl.to(
+            el,
+            {
+              clipPath: "inset(0% 0 0 0)",
+              duration: 1.1,
+              ease: "power3.out",
+            },
+            0,
+          );
+          if (img) {
+            tl.to(
+              img,
+              {
+                scale: 1,
+                duration: 1.1,
+                ease: "power3.out",
+              },
+              0,
+            );
+          }
+
+          ScrollTrigger.create({
+            trigger: el,
+            start: "top 80%",
+            onEnter: () => tl.restart(),
+            onEnterBack: () => tl.restart(),
+          });
+        });
+
+        ScrollTrigger.refresh();
+      } catch (err) {
+        console.error("[scroll reveals] failed:", err);
+      }
+    };
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initScrollReveals, { once: true });
+    } else {
+      initScrollReveals();
+    }
+
+    // Split manual per baris visual tanpa plugin SplitText:
+    // pecah jadi kata (inline-block agar offsetTop stabil), kelompokkan
+    // berdasarkan offsetTop, bungkus tiap baris pakai mask.
+    const splitIntoVisualLines = (desc: HTMLElement): HTMLElement[] => {
+      if (!desc.dataset.original) {
+        desc.dataset.original = (desc.textContent ?? "")
+          .trim()
+          .replace(/\s+/g, " ");
+      }
+      const words = (desc.dataset.original ?? "").split(" ").filter(Boolean);
+      desc.innerHTML = "";
+
+      const wordEls = words.map((word) => {
+        const s = document.createElement("span");
+        s.className = "about-word";
+        s.textContent = word;
+        desc.appendChild(s);
+        desc.appendChild(document.createTextNode(" "));
+        return s;
+      });
+
+      const grouped: HTMLElement[][] = [];
+      let current: HTMLElement[] = [];
+      let lastTop: number | null = null;
+      wordEls.forEach((el) => {
+        if (lastTop === null || Math.abs(el.offsetTop - lastTop) > 2) {
+          if (current.length) grouped.push(current);
+          current = [el];
+          lastTop = el.offsetTop;
+        } else {
+          current.push(el);
+        }
+      });
+      if (current.length) grouped.push(current);
+
+      desc.innerHTML = "";
+      return grouped.map((lineWords) => {
+        const mask = document.createElement("span");
+        mask.className = "about-line-mask";
+        const inner = document.createElement("span");
+        inner.className = "about-line";
+        lineWords.forEach((w, i) => {
+          inner.appendChild(w);
+          if (i < lineWords.length - 1)
+            inner.appendChild(document.createTextNode(" "));
+        });
+        mask.appendChild(inner);
+        desc.appendChild(mask);
+        return inner;
+      });
+    };
+
+    let aboutTrigger: any = null;
+    let aboutObserver: IntersectionObserver | null = null;
+
+    const initAboutLines = () => {
+      try {
+        const desc = document.querySelector(
+          ".about-desc",
+        ) as HTMLElement | null;
+        const section = document.querySelector(
+          ".project-about",
+        ) as HTMLElement | null;
+        if (!desc || !section) {
+          console.warn("[about] desc/section not found");
+          return;
+        }
+
+        // Bersihkan trigger & observer lama (mis. HMR / resize) supaya tidak duplikat.
+        if (aboutTrigger) {
+          aboutTrigger.kill();
+          aboutTrigger = null;
+        }
+        if (aboutObserver) {
+          aboutObserver.disconnect();
+          aboutObserver = null;
+        }
+
+        const lines = splitIntoVisualLines(desc);
+        console.log(`[about] split into ${lines.length} line(s)`);
+        if (!lines.length) return;
+
+        gsap.set(lines, { yPercent: 115 });
+
+        const linesTl = gsap.timeline({ paused: true });
+        linesTl.to(lines, {
+          yPercent: 0,
+          duration: 0.9,
+          ease: "power3.out",
+          stagger: 0.12,
+        });
+
+        const playLines = () => {
+          console.log("[about] section entered, playing");
+          linesTl.restart();
+        };
+
+        // Tetap daftarkan ScrollTrigger (refresh posisi), tapi pemicu utama
+        // pakai IntersectionObserver native yang tidak bergantung kalkulasi scroll.
+        aboutTrigger = ScrollTrigger.create({
+          trigger: section,
+          start: "top 90%",
+        });
+
+        aboutObserver = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) playLines();
+            });
+          },
+          { threshold: 0.15 },
+        );
+        aboutObserver.observe(section);
+
+        ScrollTrigger.refresh();
+      } catch (err) {
+        console.error("[about lines] failed, showing text as-is:", err);
+      }
+    };
+
+    // Reveal per-baris yang sama untuk copywriting section background & challenge.
+    // Replay setiap elemen masuk viewport (dari atas maupun bawah).
+    const setupScrollLineReveal = (el: HTMLElement) => {
+      const prevObserver = (el as any).__lineObserver as IntersectionObserver | undefined;
+      if (prevObserver) prevObserver.disconnect();
+
+      const lines = splitIntoVisualLines(el);
+      if (!lines.length) return;
+
+      gsap.set(lines, { yPercent: 115 });
+
+      const tl = gsap.timeline({ paused: true });
+      tl.to(lines, {
+        yPercent: 0,
+        duration: 0.9,
+        ease: "power3.out",
+        stagger: 0.12,
+      });
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) tl.restart();
+          });
+        },
+        { threshold: 0.2 },
+      );
+      observer.observe(el);
+      (el as any).__lineObserver = observer;
+    };
+
+    const initCopyReveals = () => {
+      try {
+        const targets = document.querySelectorAll(".background-title, .background-body p");
+        console.log(`[copy] setup ${targets.length} text block(s)`);
+        targets.forEach((target) => setupScrollLineReveal(target as HTMLElement));
+        ScrollTrigger.refresh();
+      } catch (err) {
+        console.error("[copy reveals] failed:", err);
+      }
+    };
+
+    const bootAbout = () => {
+      const run = () =>
+        requestAnimationFrame(() => {
+          requestAnimationFrame(initAboutLines);
+          requestAnimationFrame(initCopyReveals);
+        });
+      if (document.fonts?.ready) {
+        document.fonts.ready.then(run);
+      } else {
+        run();
+      }
+    };
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", bootAbout, { once: true });
+    } else {
+      bootAbout();
+    }
+    // Pastikan split dilakukan setelah layout final (gambar hero selesai dimuat).
+    window.addEventListener("load", () =>
+      requestAnimationFrame(() => {
+        initAboutLines();
+        initCopyReveals();
+      }),
+    );
+  </script>
+</Layout>
+
+<style>
+  .project-detail-hero {
+    position: relative;
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    overflow: hidden;
+  }
+
+  .project-hero-frame {
+    position: relative;
+    width: min(90vw, 1180px);
+    margin: 0 auto;
+  }
+
+  .project-hero-image {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: 4px;
+  }
+
+  .project-hero-image :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    display: block;
+    filter: brightness(0.6);
+    transition: filter 300ms ease;
+  }
+
+  .project-hero-image:hover :global(img) {
+    filter: brightness(1);
+  }
+
+  .project-hero-title {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    margin: 0;
+    text-align: center;
+    font-size: clamp(2.25rem, 6vw, 5.5rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: #ffffff;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  @media (max-width: 768px) {
+    .project-hero-title {
+      font-size: clamp(1.75rem, 8vw, 3rem);
+      white-space: normal;
+      max-width: 90%;
+    }
+  }
+
+  .project-about {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    padding: 2rem 0;
+    width: min(90vw, 1180px);
+    margin: 0 auto;
+  }
+
+  .about-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding-bottom: 12rem;
+  }
+
+  .about-right {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  .about-label {
+    margin: 0;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    line-height: 1.2;
+    letter-spacing: 0.08em;
+    color: var(--color-foreground-muted, #818081);
+    font-family: var(--font-ibm, monospace);
+  }
+
+  .about-desc {
+    margin: 0;
+    text-align: left;
+    line-height: 1.35;
+    font-size: clamp(3rem, 2vw, 1.25rem);
+    color: var(--color-foreground, #eeeeee);
+    max-width: 32rem;
+  }
+
+  .background-title {
+    margin: 0;
+    text-align: left;
+    line-height: 1.35;
+    font-size: clamp(2rem, 2vw, 1.25rem);
+    color: var(--color-foreground, #eeeeee);
+    max-width: 32rem;
+  }
+
+  .project-background,
+  .project-challenge {
+    align-items: stretch;
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .background-left,
+  .challenge-right {
+    justify-content: center;
+    text-align: left;
+    padding: 2rem;
+    min-height: 0;
+    min-width: 0;
+  }
+
+  .background-right,
+  .challenge-left {
+    min-height: 0;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .background-right :global(img),
+  .challenge-left :global(img),
+  .background-right :global(video),
+  .challenge-left :global(video) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .background-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    text-align: left;
+    max-width: 32rem;
+    line-height: 1.6;
+  }
+
+  .background-body p {
+    margin: 0;
+  }
+
+  /* :global dipakai karena mask/line dibuat via JS dan tidak menerima
+     atribut scope Astro (data-astro-cid), sehingga scoped selector
+     tidak akan cocok untuk elemen-elemen ini. */
+  :global(.about-line-mask) {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.12em;
+    margin-bottom: -0.12em;
+  }
+
+  :global(.about-line) {
+    display: block;
+    will-change: transform;
+  }
+
+  :global(.about-word) {
+    display: inline-block;
+    will-change: transform;
+  }
+
+  .service-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    line-height: 1.35;
+  }
+
+  .service-item {
+    position: relative;
+    width: fit-content;
+    margin-left: auto;
+    color: var(--color-foreground-muted, #818081);
+    cursor: pointer;
+  }
+
+  .service-item::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    color: #ffffff;
+    white-space: nowrap;
+    pointer-events: none;
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path 0.45s cubic-bezier(0.65, 0, 0.35, 1);
+  }
+
+  .service-item:hover::after {
+    clip-path: inset(0 0 0 0);
+  }
+
+  @media (max-width: 768px) {
+    .project-about {
+      grid-template-columns: 1fr;
+    }
+
+    .about-right {
+      align-items: flex-start;
+      text-align: left;
+      justify-content: flex-start;
+    }
+
+    .service-item {
+      margin-left: 0;
+    }
+  }
+</style>
