@@ -6,59 +6,39 @@ import byd from "../../public/byd.svg";
 import chery from "../../public/chery.svg";
 import daihatsu from "../../public/daihatsu.svg";
 import danareksa from "../../public/danareksa.png";
+
+const brands = [
+  { src: astra, alt: "Astra Logo" },
+  { src: bcalife, alt: "BCALife Logo" },
+  { src: byd, alt: "BYD Logo" },
+  { src: chery, alt: "Chery Logo" },
+  { src: daihatsu, alt: "Daihatsu Logo" },
+  { src: danareksa, alt: "Danareksa Logo" },
+];
 ---
 
 <div class="brand-slider left-anime-text flex items-center overflow-hidden py-4">
-  <Image class="brand w-[120px]" src={astra} alt="Astra Logo" />
-  <Image class="brand w-[120px]" src={bcalife} alt="BCALife Logo" />
-  <Image class="brand w-[120px]" src={byd} alt="BYD Logo" />
-  <Image class="brand w-[120px]" src={chery} alt="Chery Logo" />
-  <Image class="brand w-[120px]" src={daihatsu} alt="Daihatsu Logo" />
-  <Image class="brand w-[120px]" src={danareksa} alt="Danareksa Logo" />
+  {
+    brands.map((brand) => (
+      <Image class="brand w-[120px]" src={brand.src} alt={brand.alt} />
+    ))
+  }
 </div>
 
 <script>
   import gsap from "gsap";
-  import { Observer } from "gsap/Observer";
-
-  gsap.registerPlugin(Observer);
+  import { initRemeasure, onRemeasure } from "../scripts/remeasure";
 
   interface HorizontalLoopConfig {
     speed?: number;
     paddingRight?: number;
   }
 
-  const scrollingText = gsap.utils.toArray<HTMLElement>(".brand-slider .brand");
+  const REDUCED_QUERY = "(prefers-reduced-motion: reduce)";
 
-  const tl = horizontalLoop(scrollingText, {
-    speed: 0.25,
-    paddingRight: 8,
-  });
-
-  Observer.create({
-    onChangeY(self) {
-      const factor = self.deltaY < 0 ? -1 : 1;
-
-      gsap
-        .timeline({
-          defaults: { ease: "none" },
-        })
-        .to(tl, {
-          timeScale: factor * 2.5,
-          duration: 0.2,
-          overwrite: true,
-        })
-        .to(
-          tl,
-          {
-            timeScale: factor,
-            duration: 1,
-          },
-          "+=0.3",
-        );
-    },
-  });
-
+  // T-06: reaksi scroll-velocity (`Observer.create({ onChangeY })`) DIBUANG —
+  // itu otoritas scroll kedua di halaman yang udah punya Lenis, dan itu juga
+  // yang pertama harus mati di bawah prefers-reduced-motion.
   function horizontalLoop(
     items: HTMLElement[],
     config: HorizontalLoopConfig = {},
@@ -76,8 +56,6 @@ import danareksa from "../../public/danareksa.png";
     const container = items[0].parentElement;
     if (!container) return tl;
 
-    const containerWidth = container.clientWidth;
-
     const positions = items.map((element) => ({
       element,
       width: element.getBoundingClientRect().width,
@@ -93,7 +71,6 @@ import danareksa from "../../public/danareksa.png";
     positions.forEach(({ element, width }) => {
       const startX = currentX;
       const distance = width + gap;
-      const duration = distance / speed;
 
       gsap.set(element, { x: startX });
 
@@ -120,4 +97,33 @@ import danareksa from "../../public/danareksa.png";
 
     return tl;
   }
+
+  const slider = document.querySelector<HTMLElement>(".brand-slider");
+  const items = gsap.utils.toArray<HTMLElement>(".brand-slider .brand");
+
+  let loop: gsap.core.Timeline | null = null;
+
+  function buildLoop(): void {
+    loop?.kill();
+    gsap.set(items, { clearProps: "transform" });
+
+    if (window.matchMedia(REDUCED_QUERY).matches) {
+      // Reduced motion: deret logo statis, nol auto-play.
+      gsap.set(items, { x: 0 });
+      return;
+    }
+
+    loop = horizontalLoop(items, { speed: 0.25, paddingRight: 8 });
+  }
+
+  if (slider && items.length > 0) {
+    buildLoop();
+
+    // T-08: lebar logo (dan karenanya posisi-x) diukur sekali saat init;
+    // setelah font/gambar settle, ukur ulang.
+    onRemeasure(buildLoop);
+    window.matchMedia(REDUCED_QUERY).addEventListener("change", buildLoop);
+  }
+
+  initRemeasure();
 </script>

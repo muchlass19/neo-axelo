@@ -145,10 +145,10 @@ const { title, image, about, services, backgroundImage, backgroundVideo, backgro
   <script>
     import gsap from "gsap";
     import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-    console.log("[slug] script loaded, readyState:", document.readyState);
+    import { initRemeasure, onRemeasure } from "../../scripts/remeasure";
 
     gsap.registerPlugin(ScrollTrigger);
+    initRemeasure();
 
     const initReveal = () => {
       try {
@@ -180,8 +180,8 @@ const { title, image, about, services, backgroundImage, backgroundVideo, backgro
             0,
           );
         }
-      } catch (err) {
-        console.error("[hero reveal] failed:", err);
+      } catch {
+        // Reveal gagal: biarkan gambar tampil apa adanya, tanpa console noise.
       }
 
       ScrollTrigger.refresh();
@@ -242,8 +242,8 @@ const { title, image, about, services, backgroundImage, backgroundVideo, backgro
         });
 
         ScrollTrigger.refresh();
-      } catch (err) {
-        console.error("[scroll reveals] failed:", err);
+      } catch {
+        // Reveal gagal: konten tetap tampil.
       }
     };
 
@@ -316,10 +316,7 @@ const { title, image, about, services, backgroundImage, backgroundVideo, backgro
         const section = document.querySelector(
           ".project-about",
         ) as HTMLElement | null;
-        if (!desc || !section) {
-          console.warn("[about] desc/section not found");
-          return;
-        }
+        if (!desc || !section) return;
 
         // Bersihkan trigger & observer lama (mis. HMR / resize) supaya tidak duplikat.
         if (aboutTrigger) {
@@ -332,7 +329,6 @@ const { title, image, about, services, backgroundImage, backgroundVideo, backgro
         }
 
         const lines = splitIntoVisualLines(desc);
-        console.log(`[about] split into ${lines.length} line(s)`);
         if (!lines.length) return;
 
         gsap.set(lines, { yPercent: 115 });
@@ -346,7 +342,6 @@ const { title, image, about, services, backgroundImage, backgroundVideo, backgro
         });
 
         const playLines = () => {
-          console.log("[about] section entered, playing");
           linesTl.restart();
         };
 
@@ -368,8 +363,8 @@ const { title, image, about, services, backgroundImage, backgroundVideo, backgro
         aboutObserver.observe(section);
 
         ScrollTrigger.refresh();
-      } catch (err) {
-        console.error("[about lines] failed, showing text as-is:", err);
+      } catch {
+        // Split gagal: teks tampil apa adanya (nggak ada teks yang hilang).
       }
     };
 
@@ -407,11 +402,10 @@ const { title, image, about, services, backgroundImage, backgroundVideo, backgro
     const initCopyReveals = () => {
       try {
         const targets = document.querySelectorAll(".background-title, .background-body p");
-        console.log(`[copy] setup ${targets.length} text block(s)`);
         targets.forEach((target) => setupScrollLineReveal(target as HTMLElement));
         ScrollTrigger.refresh();
-      } catch (err) {
-        console.error("[copy reveals] failed:", err);
+      } catch {
+        // Reveal gagal: teks tetap tampil normal.
       }
     };
 
@@ -435,6 +429,16 @@ const { title, image, about, services, backgroundImage, backgroundVideo, backgro
     }
     // Pastikan split dilakukan setelah layout final (gambar hero selesai dimuat).
     window.addEventListener("load", () =>
+      requestAnimationFrame(() => {
+        initAboutLines();
+        initCopyReveals();
+      }),
+    );
+
+    // T-08: font swap mengubah `offsetTop` tiap kata, jadi grouping baris yang
+    // lama jadi salah. Split ulang dipicu hook remeasure (fonts.ready + load +
+    // resize yang sudah di-debounce), bukan listener lokal.
+    onRemeasure(() =>
       requestAnimationFrame(() => {
         initAboutLines();
         initCopyReveals();

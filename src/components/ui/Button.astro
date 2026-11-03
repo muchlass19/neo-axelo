@@ -1,124 +1,286 @@
 ---
-// const { title } = Astro.props;
+/**
+ * T-02 — Button polymorphic.
+ * - `href` terisi  → render `<a href>` (navigasi nyata).
+ * - `href` kosong  → render `<button disabled>` (non-interaktif: nol klik mati,
+ *                    nol tab stop palsu). Untuk submit form nanti, kirim
+ *                    `type="submit"` + `disabled={false}`.
+ * - Tombol "+" cuma dekorasi animasi: `aria-hidden` + `tabindex="-1"`,
+ *   jadi 1 CTA = 1 tab stop.
+ */
 interface Props {
   title: string;
+  href?: string | null;
   variant?: "primary" | "secondary";
   size?: "sm" | "lg" | "xl";
+  class?: string;
+  /** Accessible name, kalau beda dari label yang kelihatan. */
+  ariaLabel?: string;
+  disabled?: boolean;
+  type?: "button" | "submit";
 }
 
-const { title, variant = "primary", size = "xl" } = Astro.props;
+const {
+  title,
+  href = null,
+  variant = "primary",
+  size = "xl",
+  class: className = "",
+  ariaLabel,
+  disabled,
+  type = "button",
+} = Astro.props;
+
+// Map statis: `text-${size}` nggak pernah kebaca scanner Tailwind 4, jadi prop
+// `size` sebelumnya no-op (CTA render tanpa kelas ukuran sama sekali).
+const SIZE_CLASS: Record<NonNullable<Props["size"]>, string> = {
+  sm: "text-sm",
+  lg: "text-lg",
+  xl: "text-xl",
+};
 
 const colorClasses =
   variant === "secondary"
     ? "border border-highlight bg-base-100 text-highlight"
     : "bg-highlight text-base-100";
-const sizeClasses = `text-${size}`;
+
+const isDisabled = disabled ?? !href;
+const isInteractive = Boolean(href) && !disabled;
+
+const mainClasses = (cursor: string) =>
+  `button-main ${colorClasses} ${SIZE_CLASS[size]} whitespace-nowrap ${cursor} px-8 py-2 font-ibm font-semibold tracking-tight uppercase`;
+const shrinkClasses = `${colorClasses} ${SIZE_CLASS[size]} whitespace-nowrap px-4 py-2 font-ibm font-semibold uppercase`;
 ---
 
-<div class="btn-wrapper inline-flex gap-2">
-  <button
-    class={`button-main ${colorClasses} ${sizeClasses} whitespace-nowrap inline cursor-pointer px-8 py-2 font-ibm font-semibold tracking-tight uppercase`}
-  >
-    {title}
-  </button>
-  <button
-    class={`button-shrink ${colorClasses} ${sizeClasses} whitespace-nowrap inline cursor-pointer px-4 py-2 font-ibm font-semibold uppercase`}
-    >+</button
+<div
+  class={`btn-wrapper inline-flex gap-2 ${className}`}
+  data-cta={isInteractive ? "interactive" : "pending"}
+>
+  {
+    href ? (
+      <a
+        href={href}
+        class={mainClasses("inline-flex items-center justify-center")}
+        aria-label={ariaLabel}
+      >
+        <span class="button-label" aria-hidden="true">
+          {title}
+        </span>
+        <span class="sr-only">{ariaLabel ?? title}</span>
+      </a>
+    ) : (
+      <button
+        type={type}
+        disabled={isDisabled}
+        class={`${mainClasses("inline-flex items-center justify-center")} ${
+          isDisabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"
+        }`}
+        aria-label={ariaLabel}
+      >
+        <span class="button-label" aria-hidden="true">
+          {title}
+        </span>
+        <span class="sr-only">{ariaLabel ?? title}</span>
+      </button>
+    )
+  }
+
+  <span
+    class={`button-shrink ${shrinkClasses} hidden md:inline-flex items-center justify-center`}
+    aria-hidden="true"
+    tabindex="-1">+</span
   >
 </div>
 
 <script>
   import { gsap } from "gsap";
+  import { initRemeasure, onRemeasure } from "../../scripts/remeasure";
 
-  let isMobile = window.innerWidth < 1000;
-  const buttons = document.querySelectorAll(".btn-wrapper");
+  const SCRAMBLE_CHARS = "0123456789!@#$%^&*()_+{}[]><~";
+  const POINTER_QUERY = "(hover: hover) and (pointer: fine)";
+  const REDUCED_QUERY = "(prefers-reduced-motion: reduce)";
 
-  buttons.forEach((wrapper) => {
-    const buttonShrink = wrapper.querySelector<HTMLElement>(".button-shrink")!;
-    const buttonMain = wrapper.querySelector<HTMLElement>(".button-main")!;
+  interface ButtonEntry {
+    wrapper: HTMLElement;
+    main: HTMLElement;
+    label: HTMLElement;
+    shrink: HTMLElement;
+    timeline: gsap.core.Timeline | null;
+    scramble: gsap.core.Tween | null;
+  }
 
-    if (wrapper && buttonShrink && buttonMain && !isMobile) {
-      // 1. Hitung jarak pergeseran (Lebar tombol + gap)
-      const gap = parseFloat(getComputedStyle(wrapper).gap) || 8;
-      const moveMain = buttonShrink.offsetWidth + gap;
-      const moveShrink = -(buttonMain.offsetWidth + gap);
+  const entries: ButtonEntry[] = [];
 
-      buttonMain.style.width = `${buttonMain.offsetWidth}px`;
-      buttonMain.style.textAlign = "center";
+  const prefersReducedMotion = (): boolean =>
+    window.matchMedia(REDUCED_QUERY).matches;
 
-      // 2. Buat satu Timeline yang di-PAUSE secara default
-      const tl = gsap.timeline({ paused: true });
+  const hasFinePointer = (): boolean =>
+    window.matchMedia(POINTER_QUERY).matches;
 
-      tl.to(buttonShrink, { rotate: 60, duration: 0.25, ease: "power1.inOut" })
-        .to(buttonShrink, { scale: 0, duration: 0.25, ease: "power1.inOut" })
-        .addLabel("swap")
-        .to(
-          buttonMain,
-          { x: moveMain, duration: 0.3, ease: "power2.inOut" },
-          "swap",
-        )
-        .to(
-          buttonShrink,
-          { x: moveShrink, duration: 0.3, ease: "power2.inOut" },
-          "swap",
-        )
-        .to(buttonShrink, { scale: 1, duration: 0.25, ease: "power1.inOut" })
-        .to(buttonShrink, { rotate: 0, duration: 0.25, ease: "power1.inOut" });
+  // T-08: ukur ulang + bangun ulang timeline. Font swap mengubah lebar label,
+  // jadi jarak swap yang diukur di `load` bakal mendarat di posisi salah.
+  function setupAnimation(entry: ButtonEntry): void {
+    const { wrapper, main, label, shrink } = entry;
+    const originalText = label.dataset.original ?? label.textContent ?? "";
+    label.dataset.original = originalText;
 
-      const originalText = buttonMain.innerText.trim();
-      const chars = "0123456789!@#$%^&*()_+{}[]><~";
+    entry.timeline?.kill();
+    entry.timeline = null;
+    entry.scramble?.kill();
+    entry.scramble = null;
 
-      let scrambleTween: gsap.core.Tween;
-      let scrambleObj = { step: 0 };
-      let hasScrambled = false;
+    // Lepas kunci lebar sebelum mengukur, kalau nggak lebar metrik fallback
+    // yang kepakai selamanya.
+    main.style.width = "";
+    main.style.textAlign = "";
+    gsap.set([main, shrink], { clearProps: "transform" });
+    label.textContent = originalText;
 
-      function playScramble() {
-        hasScrambled = true;
+    const gap = Number.parseFloat(getComputedStyle(wrapper).gap) || 8;
+    const mainWidth = main.offsetWidth;
+    const moveMain = shrink.offsetWidth + gap;
+    const moveShrink = -(mainWidth + gap);
 
-        if (scrambleTween) {
-          scrambleTween.kill();
+    main.style.width = `${mainWidth}px`;
+    main.style.textAlign = "center";
+
+    const timeline = gsap.timeline({ paused: true });
+    timeline
+      .to(shrink, { rotate: 60, duration: 0.25, ease: "power1.inOut" })
+      .to(shrink, { scale: 0, duration: 0.25, ease: "power1.inOut" })
+      .addLabel("swap")
+      .to(main, { x: moveMain, duration: 0.3, ease: "power2.inOut" }, "swap")
+      .to(shrink, { x: moveShrink, duration: 0.3, ease: "power2.inOut" }, "swap")
+      .to(shrink, { scale: 1, duration: 0.25, ease: "power1.inOut" })
+      .to(shrink, { rotate: 0, duration: 0.25, ease: "power1.inOut" });
+
+    entry.timeline = timeline;
+  }
+
+  function playScramble(entry: ButtonEntry): void {
+    const { label } = entry;
+    const originalText = label.dataset.original ?? "";
+    const state = { step: 0 };
+
+    entry.scramble?.kill();
+    entry.scramble = gsap.to(state, {
+      step: originalText.length,
+      duration: 0.5,
+      ease: "none",
+      onUpdate: () => {
+        const currentStep = Math.floor(state.step);
+        let result = "";
+        for (let i = 0; i < originalText.length; i++) {
+          if (originalText[i] === " ") {
+            result += " ";
+          } else if (i < currentStep) {
+            result += originalText[i];
+          } else {
+            result +=
+              SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
+          }
         }
+        label.textContent = result;
+      },
+      onComplete: () => {
+        label.textContent = originalText;
+      },
+    });
+  }
 
-        scrambleObj.step = 0;
-        scrambleTween = gsap.to(scrambleObj, {
-          step: originalText.length,
-          duration: 0.5,
-          ease: "none",
-          onUpdate: () => {
-            let currentStep = Math.floor(scrambleObj.step);
-            let result = "";
+  function resetLabel(entry: ButtonEntry): void {
+    entry.scramble?.kill();
+    entry.scramble = null;
+    entry.label.textContent =
+      entry.label.dataset.original ?? entry.label.textContent;
+  }
 
-            for (let i = 0; i < originalText.length; i++) {
-              if (originalText[i] === " ") {
-                result += " ";
-              } else if (i < currentStep) {
-                result += originalText[i];
-              } else {
-                result += chars[Math.floor(Math.random() * chars.length)];
-              }
-            }
-            buttonMain.innerText = result;
-          },
-          onComplete: () => {
-            buttonMain.innerText = originalText;
-          },
-        });
-      }
+  function teardown(entry: ButtonEntry): void {
+    entry.timeline?.kill();
+    entry.timeline = null;
+    resetLabel(entry);
+    entry.main.style.width = "";
+    entry.main.style.textAlign = "";
+    gsap.set([entry.main, entry.shrink], { clearProps: "transform" });
+  }
 
-      wrapper.addEventListener("mouseenter", () => {
-        console.log("test heree");
-        tl.play();
-        playScramble();
+  function collectEntries(): ButtonEntry[] {
+    const found: ButtonEntry[] = [];
+    document.querySelectorAll<HTMLElement>(".btn-wrapper").forEach((wrapper) => {
+      const main = wrapper.querySelector<HTMLElement>(".button-main");
+      const label = wrapper.querySelector<HTMLElement>(".button-label");
+      const shrink = wrapper.querySelector<HTMLElement>(".button-shrink");
+      if (!main || !label || !shrink) return;
+      // CTA tanpa target dirender `<button disabled>`: nggak ada animasi buat
+      // elemen yang nggak bisa diklik.
+      if (main instanceof HTMLButtonElement && main.disabled) return;
+
+      found.push({
+        wrapper,
+        main,
+        label,
+        shrink,
+        timeline: null,
+        scramble: null,
       });
+    });
+    return found;
+  }
 
-      wrapper.addEventListener("mouseleave", () => {
-        tl.reverse();
+  function bind(entry: ButtonEntry): void {
+    const wrapper = entry.wrapper as HTMLElement & { __btnBound?: boolean };
+    if (wrapper.__btnBound) return;
+    wrapper.__btnBound = true;
 
-        if (scrambleTween) {
-          scrambleTween.kill();
-        }
-        buttonMain.innerText = originalText;
-      });
+    const enter = (): void => {
+      entry.timeline?.play();
+      playScramble(entry);
+    };
+    const leave = (): void => {
+      entry.timeline?.reverse();
+      resetLabel(entry);
+    };
+
+    wrapper.addEventListener("mouseenter", enter);
+    wrapper.addEventListener("mouseleave", leave);
+    // Paritas keyboard: CTA sekarang punya href, jadi fokus itu jalur utama
+    // user keyboard — hover-only bikin mereka nggak dapat apa-apa.
+    wrapper.addEventListener("focusin", enter);
+    wrapper.addEventListener("focusout", leave);
+  }
+
+  function activate(): void {
+    if (prefersReducedMotion() || !hasFinePointer()) {
+      entries.forEach(teardown);
+      return;
     }
-  });
+    entries.forEach((entry) => {
+      bind(entry);
+      setupAnimation(entry);
+    });
+  }
+
+  const scheduleActivate = (): void => {
+    window.requestAnimationFrame(activate);
+  };
+
+  const bootstrap = (): void => {
+    entries.push(...collectEntries());
+    activate();
+
+    // T-08: remeasure setelah font swap + resize.
+    onRemeasure(scheduleActivate);
+    window.matchMedia(POINTER_QUERY).addEventListener("change", scheduleActivate);
+    window
+      .matchMedia(REDUCED_QUERY)
+      .addEventListener("change", scheduleActivate);
+  };
+
+  initRemeasure();
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bootstrap, { once: true });
+  } else {
+    bootstrap();
+  }
 </script>

@@ -1,5 +1,44 @@
 @import "tailwindcss";
 
+/* T-01 — font self-host (latin subset, sumber: Google Fonts woff2).
+   unicode-range dipertahankan: browser nggak nge-download glyph yang nggak ada
+   di halaman. */
+@font-face {
+  font-family: "Archivo Black";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/archivo-black-latin.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/ibm-plex-mono-400-latin.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/ibm-plex-mono-500-latin.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 @theme {
   /* default color */
   --color-base-100: #1e1e1e;
@@ -12,6 +51,19 @@
   /* font */
   --font-archivo: "Archivo Black", sans-serif;
   --font-ibm: "IBM Plex Mono", monospace;
+}
+
+:root {
+  /* T-03 — tinggi nav sticky, di-set Navbar.astro (ResizeObserver).
+     Dipakai handler anchor T-07 + scroll-margin target anchor. */
+  --nav-h: 0px;
+}
+
+/* Fallback native (tanpa Lenis): target anchor jangan ketutup nav sticky.
+   Nilainya sama dengan offset jalur Lenis supaya dua jalur mendarat di titik
+   yang sama persis. */
+[id] {
+  scroll-margin-top: var(--nav-h);
 }
 
 body {
@@ -77,4 +129,21 @@ body {
 .preloader-block .preloader-block {
     left: calc(100% + 2px);
     transform-origin: left center;
+}
+
+/* Reduced motion (CSS-only): matikan transisi/animasi CSS. Animasi GSAP
+   di-guard di masing-masing script, bukan lewat !important di sini, karena
+   GSAP menulis transform inline lewat rAF. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.001ms !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }

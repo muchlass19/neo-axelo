@@ -38,7 +38,7 @@ const totalProjectCount = projects.length;
 const paddedTotal = String(totalProjectCount).padStart(2, "0");
 ---
 
-<section class="spotlight">
+<section class="spotlight" id="work">
   <div class="project-index">
     <h1>01/{paddedTotal}</h1>
   </div>
@@ -162,8 +162,10 @@ const paddedTotal = String(totalProjectCount).padStart(2, "0");
   import gsap from "gsap";
   import { ScrollTrigger } from "gsap/ScrollTrigger";
   import Lenis from "lenis";
+  import { initRemeasure, onRemeasure } from "../../scripts/remeasure";
 
   gsap.registerPlugin(ScrollTrigger);
+  initRemeasure();
 
   function initSpotlight() {
     const spotlightSection = document.querySelector(
@@ -323,9 +325,11 @@ const paddedTotal = String(totalProjectCount).padStart(2, "0");
       window.addEventListener("load", measure, { once: true });
     }
 
-    // Hitung ulang ketika layout berubah.
-    const onResize = () => ScrollTrigger.refresh();
-    window.addEventListener("resize", onResize);
+    // T-08: font swap mengubah tinggi `.project-index` / `.project-names`,
+    // jadi jarak pin harus DIHITUNG ULANG (bukan cuma refresh posisi). Hook
+    // remeasure sudah mencakup resize (debounced) + fonts.ready, jadi listener
+    // resize lokal dihapus biar nggak dobel kerja.
+    onRemeasure(measure);
   }
 
   if (document.readyState === "loading") {

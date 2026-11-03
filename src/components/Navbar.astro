@@ -1,12 +1,68 @@
 ---
 import Button from "./ui/Button.astro";
+import { CONTACT_CTA, contactHref, navLinks } from "../config/site";
+
+const links = navLinks();
+const ctaHref = contactHref();
 ---
 
-<div class="px-4 md:px-12 flex justify-between py-8 items-center">
-  <a href="/">
-    <span class="font-archivo font-bold uppercase text-lg">axelo.dev</span>
-  </a>
-  <div class="hidden md:block">
-    <Button title="Let's Work Together" size="sm" />
+<!-- T-03: nav sticky + tinggi di-publish ke CSS var --nav-h (dipakai handler
+     anchor T-07 dan scroll-margin target anchor). -->
+<header
+  class="sticky top-0 z-50 border-b border-base-300/40 bg-base-100/80 backdrop-blur-md"
+  data-nav
+>
+  <div class="px-4 md:px-12 flex items-center justify-between gap-4 py-4 md:py-6">
+    <a href="/" class="font-archivo font-bold uppercase text-lg whitespace-nowrap"
+      >axelo.dev</a
+    >
+
+    {
+      links.length > 0 && (
+        <nav
+          aria-label="Primary"
+          class="hidden md:flex items-center gap-6 font-ibm uppercase tracking-tight text-sm"
+        >
+          {links.map((link) => (
+            <a
+              href={`#${link.id}`}
+              class="transition-colors hover:text-highlight focus-visible:text-highlight"
+            >
+              {link.label}
+            </a>
+          ))}
+        </nav>
+      )
+    }
+
+    <!-- CTA tampil di semua viewport (sebelumnya `hidden md:block` = nol jalur
+         kontak di mobile). -->
+    <Button title={CONTACT_CTA.label} size="sm" href={ctaHref || null} />
   </div>
-</div>
+</header>
+
+<script>
+  import { initRemeasure } from "../scripts/remeasure";
+  import { initSmoothAnchors } from "../scripts/smoothAnchor";
+
+  const header = document.querySelector<HTMLElement>("[data-nav]");
+
+  if (header) {
+    const root = document.documentElement;
+    const syncNavHeight = (): void => {
+      root.style.setProperty("--nav-h", `${header.offsetHeight}px`);
+    };
+
+    syncNavHeight();
+
+    if ("ResizeObserver" in window) {
+      // Tinggi nav berubah setelah font self-host ke-load (T-01 + T-08).
+      new ResizeObserver(syncNavHeight).observe(header);
+    } else {
+      window.addEventListener("resize", syncNavHeight, { passive: true });
+    }
+  }
+
+  initRemeasure();
+  initSmoothAnchors();
+</script>

@@ -1,11 +1,17 @@
 ---
 import Button from "./ui/Button.astro";
+import { COPY } from "../config/copy";
+import { SOCIALS } from "../config/site";
+
+// T-04: teks hero dari @creative-researcher (src/config/copy.ts). Selama masih
+// kosong, paragrafnya nggak dirender — bukan lorem ipsum.
+const heroIntro = COPY.heroIntro.trim();
 ---
 
-<div class="px-4 md:px-12">
+<div class="px-4 md:px-12" id="top">
   <div class="mx-auto hero-copy p-8 h-full flex flex-col justify-center gap-8">
     <h1
-      class="text-[clamp(4rem,14vw,16rem)] md:text-[clamp(4rem,16vw,16rem)] leading-[0.85] font-archivo font-bold"
+      class="text-[clamp(2rem,11vw,16rem)] md:text-[clamp(4rem,16vw,16rem)] leading-[0.85] font-archivo font-bold"
     >
       AXELO.DEV
     </h1>
@@ -18,13 +24,12 @@ import Button from "./ui/Button.astro";
       What we'll do
     </div>
     <div>
-      <p class="text-2xl md:text-lg">
-        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Sequi ad
-        aspernatur earum iste illo commodi facilis neque facere minus corporis.
-      </p>
+      {
+        heroIntro.length > 0 && <p class="text-2xl md:text-lg">{heroIntro}</p>
+      }
 
       <div class="mt-4 w-full">
-        <Button title="See The Work" size="sm" />
+        <Button title="See The Work" size="sm" href="#work" />
       </div>
     </div>
   </div>
@@ -33,14 +38,26 @@ import Button from "./ui/Button.astro";
     class="grid md:grid-cols-2 py-4 md:py-12 uppercase tracking-tight font-ibm"
   >
     <div class="text-lg text-foreground-muted md:text-foreground">Socials</div>
-    <div
-      class="text-2xl md:text-lg grid grid-cols-3 gap-2 md:flex md:justify-between underline"
-    >
-      <a href="#">Instagram</a>
-      <a href="#">Tiktok</a>
-      <a href="#">LinkedIn</a>
-      <a href="#">X/Twitter</a>
-      <a href="#">GitHub</a>
+    <div class="text-2xl md:text-lg grid grid-cols-3 gap-2 md:flex md:justify-between">
+      {
+        SOCIALS.map((social) =>
+          social.url.trim().length > 0 ? (
+            <a
+              href={social.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="underline hover:text-highlight focus-visible:text-highlight transition-colors"
+            >
+              {social.label}
+            </a>
+          ) : (
+            // Belum ada URL asli (T-10): teks non-interaktif, bukan link mati.
+            <span class="text-foreground-muted" data-pending="true">
+              {social.label}
+            </span>
+          ),
+        )
+      }
     </div>
   </div>
 </div>

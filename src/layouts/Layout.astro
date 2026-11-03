@@ -4,6 +4,7 @@ import "../styles/global.css";
 
 import Navbar from "../components/Navbar.astro";
 import Preloader from "../components/Preloader.astro";
+import { SITE } from "../config/site";
 ---
 
 <!doctype html>
@@ -13,8 +14,17 @@ import Preloader from "../components/Preloader.astro";
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" />
+    <!-- T-01: cuma Archivo Black (headline hero) yang di-preload. IBM Plex Mono
+         dipakai di bawah fold, biar nggak rebut bandwidth LCP. -->
+    <link
+      rel="preload"
+      href="/fonts/archivo-black-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <meta name="generator" content={Astro.generator} />
-    <title>Axelo Dev</title>
+    <title>{SITE.name}</title>
   </head>
   <body class="bg-base-100 text-foreground">
     <Preloader />
