@@ -1,7 +1,7 @@
 ---
 import Button from "./ui/Button.astro";
 import { COPY } from "../config/copy";
-import { SOCIALS } from "../config/site";
+import { isValidUrl, SOCIALS } from "../config/site";
 
 // T-04: teks hero dari @creative-researcher (src/config/copy.ts). Selama masih
 // kosong, paragrafnya nggak dirender — bukan lorem ipsum.
@@ -41,7 +41,7 @@ const heroIntro = COPY.heroIntro.trim();
     <div class="text-2xl md:text-lg grid grid-cols-3 gap-2 md:flex md:justify-between">
       {
         SOCIALS.map((social) =>
-          social.url.trim().length > 0 ? (
+          isValidUrl(social.url) ? (
             <a
               href={social.url}
               target="_blank"

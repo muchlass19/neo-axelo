@@ -86,14 +86,25 @@ export const SOCIALS: readonly SocialLink[] = [
   { label: "GitHub", url: "" },
 ];
 
-/** Strip semua non-digit, ubah awalan `0` / `8` menjadi `62`. */
+/**
+ * Strip semua non-digit, ubah awalan `0` / `8` menjadi `62`, lalu VALIDASI
+ * (fail-closed): cuma `62` + 9–13 digit yang lolos (E.164 maks 15 digit).
+ * Typo kayak "12", "62 0812…", atau 21 digit wajib balik ke "" — kalau nggak,
+ * CTA-nya keliatan hidup, diklik, wa.me buka nomor invalid, dan gagal DIEM-DIEM.
+ */
 export function normalizeWhatsApp(input: string): string {
   const digits = input.replace(/\D/g, "");
   if (!digits) return "";
-  if (digits.startsWith("62")) return digits;
-  if (digits.startsWith("0")) return `62${digits.slice(1)}`;
-  if (digits.startsWith("8")) return `62${digits}`;
-  return digits;
+
+  let number = digits;
+  // "62" + "0…" = typo double-prefix (mis. "62 0812-3456-7890") → 620812…
+  // Panjangnya masih lolos E.164, jadi harus ditolak eksplisit di sini.
+  if (/^620/.test(number)) return "";
+  if (number.startsWith("0")) number = `62${number.slice(1)}`;
+  else if (number.startsWith("8")) number = `62${number}`;
+
+  if (!/^62\d{9,13}$/.test(number)) return "";
+  return number;
 }
 
 /** `https://wa.me/62…?text=…`, atau "" kalau nomor belum diisi. */
@@ -116,6 +127,9 @@ export function whatsappDisplay(): string {
 export function mailtoHref(): string {
   const email = CONTACT.email.trim();
   if (!email) return "";
+  // Fail-closed: "hello@" / "hello axelo.dev" bikin href hidup berisi domain
+  // kosong atau spasi mentah yang gagal diem-diem di mail client.
+  if (!/^\S+@\S+\.\S+$/.test(email)) return "";
   const params: string[] = [];
   const subject = CONTACT.emailSubject.trim();
   const body = CONTACT.emailBody.trim();
@@ -137,6 +151,15 @@ export function navLinks(): NavLink[] {
   return NAV_LINKS.filter((link) => link.enabled);
 }
 
+/**
+ * Cuma http(s) yang boleh masuk ke `<a href>`. Ini satu-satunya jalur nilai
+ * manual langsung ke href, jadi skemanya dicek (mis. "javascript:alert(1)"
+ * harus ditolak, bukan cuma "nggak kosong").
+ */
+export function isValidUrl(value: string): boolean {
+  return /^https?:\/\//i.test(value.trim());
+}
+
 export function activeSocials(): SocialLink[] {
-  return SOCIALS.filter((social) => social.url.trim().length > 0);
+  return SOCIALS.filter((social) => isValidUrl(social.url));
 }
