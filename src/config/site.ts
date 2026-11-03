@@ -55,9 +55,9 @@ export const SITE: SiteConfig = {
 
 export const CONTACT: ContactConfig = {
   // TODO(user): isi nomor WhatsApp, contoh: "08123456789" atau "+62 812-3456-7890".
-  whatsapp: "",
+  whatsapp: "089685618837",
   // TODO(user): isi email tujuan, contoh: "hello@axelo.dev".
-  email: "",
+  email: "muchlas@neodigital.co.id",
   whatsappMessage: "Halo Axelo, saya mau ngobrol soal project.",
   emailSubject: "Project inquiry — Axelo",
   emailBody:
