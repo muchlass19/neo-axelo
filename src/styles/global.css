@@ -39,7 +39,7 @@
     U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-@theme {
+@theme static {
   /* default color */
   --color-base-100: #1e1e1e;
   --color-base-200: #252526;
@@ -51,6 +51,42 @@
   /* font */
   --font-archivo: "Archivo Black", sans-serif;
   --font-ibm: "IBM Plex Mono", monospace;
+
+  /* F1-01 — type scale. Satu-satunya sumber ukuran teks.
+     Aturan: SEMUA clamp wajib min < max (clamp dengan min > max dipaku ke min
+     selamanya — itu yang bikin .about-desc kekunci 48px di semua viewport).
+     Angka dipilih dari pengukuran advance width font asli, bukan perkiraan:
+     "AXELO.DEV" = 6.346em, "AXELO" = 3.761em, "Let's build it." = 7.11em
+     (Archivo Black); IBM Plex Mono = 0.60em/karakter. */
+
+  /* display — Archivo Black, headline hero + bookend contact. */
+  --text-display: clamp(3.5rem, 12vw, 11rem);
+  --text-display--line-height: 0.85;
+  --text-display--letter-spacing: -0.01em;
+
+  /* statement — IBM Plex Mono 500, pernyataan/heading kalimat (project about). */
+  --text-statement: clamp(1.375rem, 2.2vw, 2.25rem);
+  --text-statement--line-height: 1.35;
+
+  /* lead — IBM Plex Mono 400, paragraf pengantar (hero intro, deskripsi section). */
+  --text-lead: clamp(0.875rem, 1.15vw, 1.125rem);
+  --text-lead--line-height: 1.55;
+
+  /* body — IBM Plex Mono 400, prosa panjang (challenge/background case study). */
+  --text-body: clamp(0.875rem, 1.15vw, 1rem);
+  --text-body--line-height: 1.6;
+
+  /* label-lg — label baris yang lebih "loud" (socials, label kolom hero). */
+  --text-label-lg: clamp(0.875rem, 1.1vw, 1.125rem);
+  --text-label-lg--line-height: 1.2;
+
+  /* label — eyebrow, nav, tombol, footer link, caption. Uppercase + tracking. */
+  --text-label: clamp(0.75rem, 0.9vw, 0.8125rem);
+  --text-label--line-height: 1.2;
+  --text-label--letter-spacing: 0.08em;
+
+  /* Ukuran kontrol (tap target WCAG: mobile pakai tinggi penuh 44px). */
+  --size-control: 2.75rem;
 }
 
 :root {
@@ -89,8 +125,14 @@ body {
     position: absolute;
     top: 0;
     left: 0;
-    width: 101%;
-    height: 101%;
+    /* F1-01 — overflow desktop (+102px @1440) punya DUA sumber: clamp hero yang
+       menang lawan box, dan revealer ini. `width: 101%` nambah ~15px di atas
+       wrapper `max-content` yang udah penuh. Diganti `+1px`: sisa overflow
+       ≤1px (nutup celah subpixel) dan bisa ditutup clamp — tanpa
+       `overflow: hidden`, yang bakal motong glyph karena `leading-[0.85]`
+       bikin line box lebih pendek dari tinggi huruf. */
+    width: calc(100% + 1px);
+    height: calc(100% + 1px);
     pointer-events: none;
 }
 

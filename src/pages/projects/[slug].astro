@@ -547,27 +547,37 @@ const { title, image, about, services, backgroundImage, backgroundVideo, backgro
   .about-label {
     margin: 0;
     text-transform: uppercase;
-    font-size: 0.75rem;
+    font-size: var(--text-label);
     line-height: 1.2;
     letter-spacing: 0.08em;
     color: var(--color-foreground-muted, #818081);
     font-family: var(--font-ibm, monospace);
   }
 
+  /* F1-01 — clamp lama `clamp(3rem, 2vw, 1.25rem)` punya min (48px) > max
+     (20px), jadi nilai-nya dipaku ke MIN di semua viewport (terukur 48px di
+     375px), dan `font-family` nggak pernah diset sehingga jatuh ke system sans.
+     Sekarang: tier statement + Mono 500. */
   .about-desc {
     margin: 0;
     text-align: left;
+    font-family: var(--font-ibm, monospace);
+    font-weight: 500;
+    font-size: var(--text-statement);
     line-height: 1.35;
-    font-size: clamp(3rem, 2vw, 1.25rem);
     color: var(--color-foreground, #eeeeee);
     max-width: 32rem;
   }
 
+  /* F1-01 — pola clamp terbalik yang sama (`clamp(2rem, 2vw, 1.25rem)` → 32px
+     kekunci) + font-family nggak pernah diset. */
   .background-title {
     margin: 0;
     text-align: left;
+    font-family: var(--font-ibm, monospace);
+    font-weight: 500;
+    font-size: var(--text-statement);
     line-height: 1.35;
-    font-size: clamp(2rem, 2vw, 1.25rem);
     color: var(--color-foreground, #eeeeee);
     max-width: 32rem;
   }
@@ -610,6 +620,10 @@ const { title, image, about, services, backgroundImage, backgroundVideo, backgro
     gap: 1rem;
     text-align: left;
     max-width: 32rem;
+    /* F1-01 — prosa utama halaman project: sebelumnya mewarisi font & ukuran
+       default (system sans, 16px). Sekarang mono + tier body. */
+    font-family: var(--font-ibm, monospace);
+    font-size: var(--text-body);
     line-height: 1.6;
   }
 
