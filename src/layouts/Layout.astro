@@ -5,6 +5,9 @@ import "../styles/global.css";
 import Navbar from "../components/Navbar.astro";
 import Preloader from "../components/Preloader.astro";
 import { SITE } from "../config/site";
+
+// F1-03: brand loader cuma di home.
+const isHome = Astro.url.pathname === "/";
 ---
 
 <!doctype html>
@@ -27,7 +30,7 @@ import { SITE } from "../config/site";
     <title>{SITE.name}</title>
   </head>
   <body class="bg-base-100 text-foreground">
-    <Preloader />
+    <Preloader full={isHome} />
     <Navbar />
     <slot />
 

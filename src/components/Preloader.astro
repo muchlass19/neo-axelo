@@ -1,23 +1,39 @@
 ---
+/**
+ * F1-03 — Brand loader.
+ *
+ * Ruling (PM + @figcraft-designer): home tetap full loader karena dia yang
+ * setup mask-block reveal hero. Non-home: overlay TIDAK dirender sama sekali —
+ * nol flash, nol idle 4 detik nutup konten di halaman yang paling mungkin
+ * di-deep-link, dan nol SplitText buat heading yang nggak ada.
+ * Reveal hero halaman project diurus entry gate di `[slug].astro`.
+ */
+interface Props {
+  /** `false` = halaman non-home: nol overlay, nol timeline. */
+  full?: boolean;
+}
 
+const { full = true } = Astro.props;
 ---
 
-<div
-  class="preloader-overlay fixed top-0 left-0 w-full h-full bg-highlight flex justify-center items-center flex-col gap-4 overflow-hidden z-[100]"
->
-  <div class="preloader relative w-[70px] h-[16px] overflow-visible">
-    <div class="preloader-block">
-      <div class="preloader-block">
+{
+  full && (
+    <div class="preloader-overlay fixed top-0 left-0 w-full h-full bg-highlight flex justify-center items-center flex-col gap-4 overflow-hidden z-[100]">
+      <div class="preloader relative w-[70px] h-[16px] overflow-visible">
         <div class="preloader-block">
-          <div class="preloader-block"></div>
+          <div class="preloader-block">
+            <div class="preloader-block">
+              <div class="preloader-block" />
+            </div>
+          </div>
         </div>
       </div>
+      <div class="preloader-copy uppercase font-archivo text-base-100 font-bold">
+        <p>Loading</p>
+      </div>
     </div>
-  </div>
-  <div class="preloader-copy uppercase font-archivo text-base-100 font-bold">
-    <p>Loading</p>
-  </div>
-</div>
+  )
+}
 
 <script>
   import gsap from "gsap";
@@ -25,119 +41,134 @@
 
   gsap.registerPlugin(SplitText);
 
-  new SplitText(".preloader-copy p", {
-    type: "chars",
-    charsClass: "char",
-  });
-
-  const preloaderBlocks = gsap.utils.toArray(".preloader-block");
-  const nestedBlocks = preloaderBlocks.slice(1);
-
-  gsap.set(nestedBlocks, { rotation: -180, transformOrigin: "left center" });
-
-  const tl = gsap.timeline({ delay: 1 });
-  tl.to(".char", {
-    opacity: 1,
-    duration: 0.15,
-    stagger: 0.1,
-  });
-
-  tl.from(
-    ".preloader",
-    {
-      scale: 0,
-      duration: 0.35,
-      ease: "back.out(1.8)",
-      transformOrigin: "25% center",
-    },
-    "<",
+  const overlay = document.querySelector<HTMLElement>(".preloader-overlay");
+  const copyParagraph = document.querySelector<HTMLElement>(
+    ".preloader-copy p",
   );
+  const heroHeading = document.querySelector<HTMLElement>(".hero-copy h1");
 
-  tl.to(
-    nestedBlocks,
-    {
-      delay: 0.25,
-      rotation: 0,
-      duration: 0.65,
-      ease: "power3.inOut",
-      stagger: 0.75,
-    },
-    "<",
-  );
-
-  tl.to([".preloader-copy", ".preloader-block"], {
-    opacity: 0,
-    duration: 0.5,
-  });
-
-  tl.to(".preloader-overlay", {
-    "--wipe": "90deg",
-    duration: 1,
-    ease: "power3.inOut",
-    zIndex: -100,
-  });
-
-  const heroSplit = new SplitText(".hero-copy h1", {
-    type: "lines",
-    linesClass: "block-line",
-  });
-
-  const heroLines: any = [];
-  const heroReveals: any = [];
-
-  heroSplit.lines.forEach((line) => {
-    const wrapper = document.createElement("div");
-    wrapper.className = "block-line-wrapper";
-    line.parentNode?.insertBefore(wrapper, line);
-    wrapper.appendChild(line);
-
-    const white = document.createElement("div");
-    white.className = "block-revealer block-white";
-    wrapper.appendChild(white);
-
-    const orange = document.createElement("div");
-    orange.className = "block-revealer block-orange";
-    wrapper.appendChild(orange);
-
-    heroLines.push(line);
-    heroReveals.push({ orange, white });
-  });
-
-  const revealerBlocks = heroReveals.flatMap((reveal: any) => [
-    reveal.orange,
-    reveal.white,
-  ]);
-
-  gsap.set(heroLines, { opacity: 0 });
-  gsap.set(revealerBlocks, { scaleX: 0, transformOrigin: "left center" });
-
-  heroReveals.forEach((reveal: any, index: number) => {
-    const line = heroLines[index];
-    const position = index === 0 ? "-=0.65" : "-=0.75";
-
-    const lineTl = gsap.timeline();
-
-    [reveal.orange, reveal.white].forEach((block: any, blockIndex: number) => {
-      const blockTl = gsap.timeline({ delay: blockIndex * 0.15 });
-
-      blockTl.to(block, {
-        scaleX: 1,
-        duration: 0.5,
-        ease: "power4.inOut",
-      });
-
-      blockTl.set(block, { transformOrigin: "right center" });
-      blockTl.set(block, {
-        scaleX: 0,
-        duration: 0.5,
-        ease: "power4.inOut",
-      });
-
-      lineTl.add(blockTl, 0);
+  // Tanpa overlay (non-home) nggak ada yang dianimasikan: ini yang dulu bikin
+  // `new SplitText(".hero-copy h1")` dan tween `.preloader` jalan di halaman
+  // project, ngeluarin 2× "GSAP target not found" buat elemen yang nggak ada.
+  if (overlay && copyParagraph) {
+    new SplitText(copyParagraph, {
+      type: "chars",
+      charsClass: "char",
     });
 
-    lineTl.set(line, { opacity: 1 }, 0.5);
+    const preloaderBlocks = gsap.utils.toArray<HTMLElement>(".preloader-block");
+    const nestedBlocks = preloaderBlocks.slice(1);
 
-    tl.add(lineTl, position);
-  });
+    gsap.set(nestedBlocks, { rotation: -180, transformOrigin: "left center" });
+
+    const tl = gsap.timeline({ delay: 1 });
+    tl.to(".char", {
+      opacity: 1,
+      duration: 0.15,
+      stagger: 0.1,
+    });
+
+    tl.from(
+      ".preloader",
+      {
+        scale: 0,
+        duration: 0.35,
+        ease: "back.out(1.8)",
+        transformOrigin: "25% center",
+      },
+      "<",
+    );
+
+    tl.to(
+      nestedBlocks,
+      {
+        delay: 0.25,
+        rotation: 0,
+        duration: 0.65,
+        ease: "power3.inOut",
+        stagger: 0.75,
+      },
+      "<",
+    );
+
+    tl.to([".preloader-copy", ".preloader-block"], {
+      opacity: 0,
+      duration: 0.5,
+    });
+
+    tl.to(".preloader-overlay", {
+      "--wipe": "90deg",
+      duration: 1,
+      ease: "power3.inOut",
+      zIndex: -100,
+    });
+
+    // Reveal hero: cuma kalau heading-nya beneran ada di halaman ini.
+    if (heroHeading) {
+      const heroSplit = new SplitText(heroHeading, {
+        type: "lines",
+        linesClass: "block-line",
+      });
+
+      const heroLines: HTMLElement[] = [];
+      const heroReveals: { orange: HTMLDivElement; white: HTMLDivElement }[] = [];
+
+      heroSplit.lines.forEach((line) => {
+        const lineEl = line as HTMLElement;
+        const wrapper = document.createElement("div");
+        wrapper.className = "block-line-wrapper";
+        lineEl.parentNode?.insertBefore(wrapper, lineEl);
+        wrapper.appendChild(lineEl);
+
+        const white = document.createElement("div");
+        white.className = "block-revealer block-white";
+        wrapper.appendChild(white);
+
+        const orange = document.createElement("div");
+        orange.className = "block-revealer block-orange";
+        wrapper.appendChild(orange);
+
+        heroLines.push(lineEl);
+        heroReveals.push({ orange, white });
+      });
+
+      const revealerBlocks = heroReveals.flatMap((reveal) => [
+        reveal.orange,
+        reveal.white,
+      ]);
+
+      gsap.set(heroLines, { opacity: 0 });
+      gsap.set(revealerBlocks, { scaleX: 0, transformOrigin: "left center" });
+
+      heroReveals.forEach((reveal, index) => {
+        const line = heroLines[index];
+        const position = index === 0 ? "-=0.65" : "-=0.75";
+
+        const lineTl = gsap.timeline();
+
+        [reveal.orange, reveal.white].forEach((block, blockIndex) => {
+          const blockTl = gsap.timeline({ delay: blockIndex * 0.15 });
+
+          blockTl.to(block, {
+            scaleX: 1,
+            duration: 0.5,
+            ease: "power4.inOut",
+          });
+
+          blockTl.set(block, { transformOrigin: "right center" });
+          blockTl.set(block, {
+            scaleX: 0,
+            duration: 0.5,
+            ease: "power4.inOut",
+          });
+
+          lineTl.add(blockTl, 0);
+        });
+
+        lineTl.set(line, { opacity: 1 }, 0.5);
+
+        tl.add(lineTl, position);
+      });
+    }
+  }
 </script>

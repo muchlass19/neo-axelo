@@ -77,3 +77,20 @@ export function onRemeasure(handler: () => void): () => void {
 
   return () => document.removeEventListener(REMEASURE_EVENT, listener);
 }
+
+/** Sinyal remeasure sudah pernah lewat? Dipakai entry gate (F1-03). */
+export function hasRemeasured(): boolean {
+  return (window as RemeasureWindow).__axeloRemeasureFired === true;
+}
+
+/** Resolve setelah satu siklus remeasure (langsung resolve kalau sudah lewat). */
+export function onceRemeasure(): Promise<void> {
+  if (hasRemeasured()) return Promise.resolve();
+
+  return new Promise((resolve) => {
+    const off = onRemeasure(() => {
+      off();
+      resolve();
+    });
+  });
+}
