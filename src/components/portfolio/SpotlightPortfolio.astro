@@ -1,71 +1,71 @@
 ---
+// F1-19 (frame `design/axelo-home-1440.png` + `-375.png`, commit figcraft):
+// section WORK disusun ulang sesuai design.
+//
+// Sebelumnya (design lama dari repo asal): counter `01/04` di kiri sebagai
+// headline besar yang ikut meluncur, gambar bertumpuk di tengah, dan nama project
+// kecil rata kanan di pojok bawah.
+//
+// Design FigCraft: counter kecil di kiri atas, **nama project jadi elemen besar**
+// di kolom kiri (aktif putih, sisanya muted), preview gambar di kolom kanan, plus
+// satu baris caption di bawah preview (`PROJECT 01 — NAME` + link case study).
 import { Image } from "astro:assets";
-import anessaWeb from "../../../public/projects/anessa/anessa-web.png";
-import daihatsuWeb from "../../../public/projects/daihatsu-web.png";
-import daihatsuOm from "../../../public/projects/daihatsu-om.png";
-import daihatsuSparepart from "../../../public/projects/daihatsu-sparepart.png";
+import { PROJECTS, paddedProjectCount } from "../../data/projects";
+import { COPY } from "../../config/copy";
 
-const projectDefinitions = [
-  {
-    image: anessaWeb,
-    name: "Anessa Main Website",
-    summary: "Corporate marketing site for Anessa skincare",
-    link: "/projects/anessa-web",
-  },
-  {
-    image: daihatsuWeb,
-    name: "Daihatsu Main Website",
-    summary: "Official landing page for Daihatsu vehicles",
-    link: "/projects/daihatsu-web",
-  },
-  {
-    image: daihatsuOm,
-    name: "Daihatsu Owner Manual PWA",
-    summary: "Progressive web app for vehicle owner manuals",
-    link: "projects/daihatsu-om",
-  },
-  {
-    image: daihatsuSparepart,
-    name: "Daihatsu Sparepart Catalog",
-    summary: "Digital catalog for genuine Daihatsu spare parts",
-    link: "/projects/daihatsu-sparepart",
-  },
-];
-
-// Urutan 8 item: daftar asal diulang 2x.
-const projects = [...projectDefinitions];
-const totalProjectCount = projects.length;
-const paddedTotal = String(totalProjectCount).padStart(2, "0");
+const projects = [...PROJECTS];
+const paddedTotal = paddedProjectCount();
+const pad = (value: number): string => String(value).padStart(2, "0");
 ---
 
-<section class="spotlight">
+<section class="spotlight" id="work">
   <div class="project-index">
-    <h1>01/{paddedTotal}</h1>
+    <p>{pad(1)}/{paddedTotal}</p>
   </div>
 
-  <div class="project-images">
+  <div class="project-names">
     {
       projects.map((project) => (
-        <div class="project-img" data-summary={project.summary}>
-          <a
-            href={project.link}
-            class="project-link"
-            aria-label={project.name}
-          >
-            <Image
-              src={project.image}
-              alt={project.name}
-              loading="lazy"
-              decoding="async"
-            />
-          </a>
-        </div>
+        <a href={project.link} class="project-name">
+          {project.shortName}
+        </a>
       ))
     }
   </div>
 
-  <div class="project-names">
-    {projects.map((project) => <p>{project.name}</p>)}
+  <div class="project-preview">
+    <div class="project-band">
+      <div class="project-images">
+        {
+          projects.map((project) => (
+            <div class="project-img" data-summary={project.summary}>
+              <a
+                href={project.link}
+                class="project-link"
+                aria-label={project.name}
+                tabindex="-1"
+              >
+                <Image
+                  src={project.image}
+                  alt={project.name}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </a>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="project-caption">
+    <p class="project-caption-title" data-prefix={COPY.work.labelPrefix}>
+      {COPY.work.labelPrefix} {pad(1)} — {projects[0].shortName}
+    </p>
+    <a class="project-caption-link" href={projects[0].link}>
+      {COPY.work.openCaseStudy}<span aria-hidden="true">→</span>
+    </a>
   </div>
 </section>
 
@@ -78,24 +78,86 @@ const paddedTotal = String(totalProjectCount).padStart(2, "0");
     overflow: hidden;
   }
 
-  .spotlight .project-index h1 {
-    text-transform: uppercase;
-    font-size: clamp(3rem, 5vw, 7rem);
-    font-weight: 400;
-    line-height: 1;
+  /* Counter: label kecil di kiri atas (dulu headline besar yang ikut meluncur). */
+  .spotlight .project-index {
+    position: absolute;
+    /* Section ini di-pin di `top top`, sementara nav-nya sticky dan nutupin
+       ~93px pertama — tanpa offset ini counter-nya ada DI BELAKANG nav. */
+    top: calc(var(--nav-h, 93px) + 0.75rem);
+    left: 2rem;
+    z-index: 2;
   }
 
+  .spotlight .project-index p {
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.8125rem;
+    line-height: 1;
+    color: #ffffff;
+  }
+
+  /* Nama project: elemen terbesar di section ini, kolom kiri. */
+  .spotlight .project-names {
+    position: absolute;
+    top: calc(var(--nav-h, 93px) + 3.75rem);
+    left: 2rem;
+    max-width: 36%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
+    z-index: 2;
+  }
+
+  .spotlight .project-names a {
+    display: block;
+    margin: 0;
+    text-decoration: none;
+    font-family: var(--font-archivo), sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: clamp(1.25rem, 2.2vw, 2.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    color: #4a4a4a;
+    transition: color 0.3s ease;
+  }
+
+  .spotlight .project-names a:hover,
+  .spotlight .project-names a:focus-visible {
+    color: #ffffff;
+  }
+
+  /* Kolom kanan. Caption punya strip sendiri di bawah, jadi gambar nggak pernah
+     numpuk teks caption; `bottom` dipakai biar tingginya nggak perlu angka mati. */
+  .spotlight .project-preview {
+    position: absolute;
+    top: 0;
+    right: 2rem;
+    bottom: 4.5rem;
+    width: 56%;
+    overflow: hidden;
+  }
+
+  .spotlight .project-band {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  /* Padding atas/bawah di-set dari JS: separuh tinggi band, supaya gambar
+     pertama duduk tepat di tengah band waktu progres 0 (reel-nya nggak meleset
+     satu). Angka mati `50svh` dulu cuma benar selama band = setinggi viewport. */
   .spotlight .project-images {
     position: absolute;
     top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 35%;
-    padding: 50svh 0;
+    left: 0;
+    width: 100%;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    z-index: -1;
+    z-index: 1;
   }
 
   .spotlight .project-img {
@@ -120,23 +182,39 @@ const paddedTotal = String(totalProjectCount).padStart(2, "0");
     height: 100%;
   }
 
-  .spotlight .project-names {
+  /* Caption di bawah preview — dua baris dari design, nilai-nya diisi ulang oleh
+     handler scroll (angka + nama + href ikut project yang sedang aktif). */
+  .spotlight .project-caption {
     position: absolute;
-    right: 2rem;
     bottom: 2rem;
+    right: 2rem;
+    width: 56%;
+    left: auto;
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
+    align-items: baseline;
+    gap: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.8125rem;
+    line-height: 1.4;
   }
 
-  .spotlight .project-names p {
-    color: #4a4a4a;
-    transition: color 0.3s ease;
+  .spotlight .project-caption p {
+    margin: 0;
+    color: #818081;
   }
 
-  .spotlight .project-index h1,
-  .spotlight .project-images,
-  .spotlight .project-names p {
+  .spotlight .project-caption-link {
+    color: #ffffff;
+    white-space: nowrap;
+  }
+
+  .spotlight .project-caption-link:hover,
+  .spotlight .project-caption-link:focus-visible {
+    color: var(--color-highlight);
+  }
+
+  .spotlight .project-images {
     will-change: transform;
   }
 
@@ -147,13 +225,46 @@ const paddedTotal = String(totalProjectCount).padStart(2, "0");
   }
 
   @media (max-width: 1000px) {
-    .spotlight .project-images {
-      width: calc(100% - 4rem);
-      gap: 25svh;
+    .spotlight .project-index {
+      top: calc(var(--nav-h, 77px) + 0.5rem);
+      left: 1.25rem;
     }
 
-    .spotlight .project-names p {
-      color: #ffffff !important;
+    .spotlight .project-names {
+      top: calc(var(--nav-h, 77px) + 3rem);
+      left: 1.25rem;
+      max-width: 82%;
+    }
+
+    .spotlight .project-names a {
+      /* 4 nama harus tetap SATU baris di 375/320 (design). Di 7,5vw nama
+         terpanjang ("Daihatsu Sparepart") keukur 2 baris, jadi tier-nya turun. */
+      font-size: clamp(1.25rem, 6.2vw, 2rem);
+    }
+
+    /* Band preview: nama di atas, gambar di bawahnya, caption paling bawah —
+       jadi gambar nggak pernah nutupin nama (design 375). */
+    .spotlight .project-preview {
+      top: auto;
+      bottom: 4.75rem;
+      left: 1.25rem;
+      right: 1.25rem;
+      width: auto;
+      height: 34%;
+    }
+
+    .spotlight .project-images {
+      width: 100%;
+      gap: 1rem;
+    }
+
+    .spotlight .project-caption {
+      left: 1.25rem;
+      right: 1.25rem;
+      width: auto;
+      bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 0.5rem 1.25rem;
     }
   }
 </style>
@@ -162,8 +273,10 @@ const paddedTotal = String(totalProjectCount).padStart(2, "0");
   import gsap from "gsap";
   import { ScrollTrigger } from "gsap/ScrollTrigger";
   import Lenis from "lenis";
+  import { initRemeasure, onRemeasure } from "../../scripts/remeasure";
 
   gsap.registerPlugin(ScrollTrigger);
+  initRemeasure();
 
   function initSpotlight() {
     const spotlightSection = document.querySelector(
@@ -184,7 +297,7 @@ const paddedTotal = String(totalProjectCount).padStart(2, "0");
     }
 
     const projectIndex = spotlightSection.querySelector(
-      ".project-index h1",
+      ".project-index p",
     ) as HTMLElement | null;
     const projectImgs =
       spotlightSection.querySelectorAll<HTMLElement>(".project-img");
@@ -192,16 +305,34 @@ const paddedTotal = String(totalProjectCount).padStart(2, "0");
       ".project-images",
     ) as HTMLElement | null;
     const projectNames =
-      spotlightSection.querySelectorAll<HTMLElement>(".project-names p");
+      spotlightSection.querySelectorAll<HTMLElement>(".project-names a");
     const projectNamesContainer = spotlightSection.querySelector(
       ".project-names",
     ) as HTMLElement | null;
+    const previewBox = spotlightSection.querySelector(
+      ".project-preview",
+    ) as HTMLElement | null;
+    const captionTitle = spotlightSection.querySelector(
+      ".project-caption-title",
+    ) as HTMLElement | null;
+    const captionLink = spotlightSection.querySelector(
+      ".project-caption-link",
+    ) as HTMLAnchorElement | null;
 
     if (!projectIndex || !projectImagesContainer || !projectNamesContainer)
       return;
 
     const totalProjectCount = projectNames.length;
     if (totalProjectCount === 0) return;
+
+    const pad2 = (value: number): string => String(value).padStart(2, "0");
+    const prefix = captionTitle?.dataset.prefix ?? "Project";
+    const projectNamesText = [...projectNames].map(
+      (p) => p.textContent?.trim() ?? "",
+    );
+    const projectLinks = [...spotlightSection.querySelectorAll<HTMLAnchorElement>(
+      ".project-img .project-link",
+    )].map((a) => a.getAttribute("href") ?? "");
 
     // Summary tooltip mengikuti kursor (desktop only).
     const isDesktop = window.matchMedia(
@@ -241,19 +372,23 @@ const paddedTotal = String(totalProjectCount).padStart(2, "0");
       const spotlightSectionHeight = spotlightSection.offsetHeight;
       const spotlightSectionPadding =
         parseFloat(getComputedStyle(spotlightSection).padding) || 0;
-      const projectIndexHeight = projectIndex.offsetHeight;
-      const containerHeight = projectNamesContainer.offsetHeight;
+
+      // Band = elemen .project-preview (kolom kanan yang di-clip). Desktop:
+      // setinggi section dikurangi strip caption. Mobile: band 34% di bawah nama,
+      // jadi reel-nya cuma lewat band itu dan nggak nabrak nama.
+      const bandHeight = previewBox?.offsetHeight ?? window.innerHeight;
+
+      // Padding = separuh tinggi band (bukan angka mati): bikin gambar pertama
+      // duduk di tengah band waktu progres 0, dan bikin jarak reel = tinggi
+      // tumpukan gambar (jadi gambar terakhir juga mendarat di tengah).
+      if (previewBox) {
+        const half = `${Math.round(bandHeight / 2)}px`;
+        projectImagesContainer.style.paddingTop = half;
+        projectImagesContainer.style.paddingBottom = half;
+      }
+
       const imagesHeight = projectImagesContainer.offsetHeight;
-
-      const moveDistanceIndex =
-        spotlightSectionHeight -
-        spotlightSectionPadding * 2 -
-        projectIndexHeight;
-      const moveDistanceNames =
-        spotlightSectionHeight - spotlightSectionPadding * 2 - containerHeight;
-      const moveDistanceImages = window.innerHeight - imagesHeight;
-
-      const imgActivationThreshold = window.innerHeight / 2;
+      const moveDistanceImages = bandHeight - imagesHeight;
 
       ScrollTrigger.getAll().forEach((trigger: any) => {
         if (trigger.trigger === spotlightSection) trigger.kill();
@@ -273,12 +408,31 @@ const paddedTotal = String(totalProjectCount).padStart(2, "0");
             totalProjectCount,
           );
 
-          projectIndex.textContent = `${String(currentIndex).padStart(2, "0")}/${String(totalProjectCount).padStart(2, "0")}`;
+          projectIndex.textContent = `${pad2(currentIndex)}/${pad2(totalProjectCount)}`;
 
-          gsap.set(projectIndex, { y: progress * moveDistanceIndex });
+          // Counter-nya label diam di kiri atas (design), jadi dia nggak ikut
+          // meluncur kayak versi lama yang headline besar.
           gsap.set(projectImagesContainer, {
             y: progress * moveDistanceImages,
           });
+
+          if (captionTitle) {
+            captionTitle.textContent = `${prefix} ${pad2(currentIndex)} — ${
+              projectNamesText[currentIndex - 1] ?? ""
+            }`;
+          }
+          if (captionLink && projectLinks[currentIndex - 1]) {
+            captionLink.setAttribute("href", projectLinks[currentIndex - 1]);
+          }
+
+          // Threshold dihitung dari posisi section saat ini + offset band di
+          // dalamnya — rect yang diukur sekali di `measure()` basi begitu pin
+          // mulai jalan (dan itu bikin nggak ada gambar yang pernah nyala).
+          const imgActivationThreshold = previewBox
+            ? spotlightSection.getBoundingClientRect().top +
+              previewBox.offsetTop +
+              previewBox.offsetHeight / 2
+            : window.innerHeight / 2;
 
           projectImgs.forEach((img) => {
             const imgRect = img.getBoundingClientRect();
@@ -292,22 +446,13 @@ const paddedTotal = String(totalProjectCount).padStart(2, "0");
             }
           });
 
+          // Nama project: list diam + state aktif. Reel vertikal lama bikin nama
+          // meluncur ke ATAS keluar section (di komposisi baru, list-nya duduk di
+          // bawah nav), jadi yang tersisa cuma penanda aktif — bukan gerak.
+          const activeNameIndex = Math.min(currentIndex - 1, totalProjectCount - 1);
           projectNames.forEach((p, index) => {
-            const startProgress = index / totalProjectCount;
-            const endProgress = (index + 1) / totalProjectCount;
-            const projectProgress = Math.max(
-              0,
-              Math.min(
-                1,
-                (progress - startProgress) / (endProgress - startProgress),
-              ),
-            );
-            gsap.set(p, { y: -projectProgress * moveDistanceNames });
             gsap.set(p, {
-              color:
-                projectProgress > 0 && projectProgress < 1
-                  ? "#ffffff"
-                  : "#4a4a4a",
+              color: index === activeNameIndex ? "#ffffff" : "#4a4a4a",
             });
           });
         },
@@ -323,9 +468,10 @@ const paddedTotal = String(totalProjectCount).padStart(2, "0");
       window.addEventListener("load", measure, { once: true });
     }
 
-    // Hitung ulang ketika layout berubah.
-    const onResize = () => ScrollTrigger.refresh();
-    window.addEventListener("resize", onResize);
+    // T-08: font swap mengubah tinggi `.project-names`, jadi jarak pin harus
+    // DIHITUNG ULANG (bukan cuma refresh posisi). Hook remeasure sudah mencakup
+    // resize (debounced) + fonts.ready, jadi listener resize lokal dihapus.
+    onRemeasure(measure);
   }
 
   if (document.readyState === "loading") {

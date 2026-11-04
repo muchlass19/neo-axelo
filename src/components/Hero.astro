@@ -1,46 +1,83 @@
 ---
 import Button from "./ui/Button.astro";
+import { COPY } from "../config/copy";
+import { isValidUrl, SOCIALS } from "../config/site";
+// import { PROJECTS } from "../data/projects";
+
+// T-04: teks hero dari @creative-researcher (src/config/copy.ts). Selama masih
+// kosong, paragrafnya nggak dirender — bukan lorem ipsum.
+const heroIntro = COPY.heroIntro.trim();
+
+// F1-14 (frame home): strip index di bawah headline. Angka di-derive dari data,
+// bukan ditulis manual — project ke-5 nggak boleh bikin label bohong.
+// Urutan (kualifier dulu, lalu tiga counter sebagai satu grup) dari
+// @creative-researcher: pola `NOUN + angka` yang diakhiri frasa tanpa angka
+// kebaca orphan, jadi item non-angka dipindah ke depan.
+// const pad = (value: number): string => String(value).padStart(2, "0");
+// const heroIndexLine = [
+//   COPY.heroIndex.location,
+//   `${COPY.heroIndex.workLabel} ${pad(PROJECTS.length)}`,
+//   `${COPY.heroIndex.clientsLabel} ${pad(COPY.clients.names.length)}`,
+//   `${COPY.heroIndex.servicesLabel} ${pad(COPY.services.items.length)}`,
+// ].join("  /  ");
 ---
 
-<div class="px-4 md:px-12">
-  <div class="mx-auto hero-copy p-8 h-full flex flex-col justify-center gap-8">
-    <h1
-      class="text-[clamp(4rem,14vw,16rem)] md:text-[clamp(4rem,16vw,16rem)] leading-[0.85] font-archivo font-bold"
-    >
-      AXELO.DEV
+<div class="px-4 md:px-12" id="top">
+  <div class="mx-auto hero-copy p-6 md:p-8 h-full flex flex-col justify-center gap-8">
+    <!-- F1-02: type dari token (12vw, bukan 16vw — 16vw selalu kalah lawan box
+         dan itu sumber overflow +102 @1440). Mobile dipecah 2 baris lewat
+         `block md:inline`: SplitText bikin wrapper per baris, jadi mask-block
+         reveal-nya dapat stagger yang sama kayak desktop. -->
+    <h1 class="text-display font-archivo font-bold">
+      <span class="block md:inline">AXELO</span><span class="block md:inline"
+        >.DEV</span
+      >
     </h1>
   </div>
 
   <div
-    class="grid md:grid-cols-2 py-4 my-4 md:py-12 md:my-12 uppercase tracking-tight font-ibm"
+    class="grid md:grid-cols-2 py-2 my-2 md:py-10 md:my-8 uppercase tracking-tight font-ibm"
   >
-    <div class="text-lg text-foreground-muted md:text-foreground">
+    <div class="text-label-lg text-foreground-muted md:text-foreground">
       What we'll do
     </div>
     <div>
-      <p class="text-2xl md:text-lg">
-        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Sequi ad
-        aspernatur earum iste illo commodi facilis neque facere minus corporis.
-      </p>
+      {
+        heroIntro.length > 0 && <p class="text-lead normal-case">{heroIntro}</p>
+      }
 
-      <div class="mt-4 w-full">
-        <Button title="See The Work" size="sm" />
+      <div class="mt-3 md:mt-4 w-full">
+        <Button title="See The Work" size="sm" href="#work" />
       </div>
     </div>
   </div>
 
   <div
-    class="grid md:grid-cols-2 py-4 md:py-12 uppercase tracking-tight font-ibm"
+    class="grid md:grid-cols-2 py-2 md:py-10 uppercase tracking-tight font-ibm"
   >
-    <div class="text-lg text-foreground-muted md:text-foreground">Socials</div>
-    <div
-      class="text-2xl md:text-lg grid grid-cols-3 gap-2 md:flex md:justify-between underline"
-    >
-      <a href="#">Instagram</a>
-      <a href="#">Tiktok</a>
-      <a href="#">LinkedIn</a>
-      <a href="#">X/Twitter</a>
-      <a href="#">GitHub</a>
+    <div class="text-label-lg text-foreground-muted md:text-foreground">
+      Socials
+    </div>
+    <div class="text-label-lg grid grid-cols-3 gap-x-3 gap-y-1 md:flex md:justify-between">
+      {
+        SOCIALS.map((social) =>
+          isValidUrl(social.url) ? (
+            <a
+              href={social.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="underline hover:text-highlight focus-visible:text-highlight transition-colors"
+            >
+              {social.label}
+            </a>
+          ) : (
+            // Belum ada URL asli (T-10): teks non-interaktif, bukan link mati.
+            <span class="text-foreground-muted" data-pending="true">
+              {social.label}
+            </span>
+          ),
+        )
+      }
     </div>
   </div>
 </div>

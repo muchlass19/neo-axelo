@@ -1,0 +1,41 @@
+---
+// F1-10 — halaman 404.
+// Pakai token F1-01 (text-display / text-statement / text-lead) dan Button
+// polymorphic, jadi tonenya sama dengan halaman lain. `404` di tier display
+// (3 karakter) aman di semua lebar; heading-nya sengaja di tier statement biar
+// nggak ada elemen display panjang yang bisa overflow.
+import Layout from "../layouts/Layout.astro";
+import Button from "../components/ui/Button.astro";
+import { COPY } from "../config/copy";
+import { mailtoHref } from "../config/site";
+---
+
+<Layout title="Page not found">
+  <section
+    class="px-4 md:px-12 py-16 md:py-24 min-h-[60svh] flex flex-col justify-center gap-6"
+  >
+    <h1 class="text-display font-archivo font-bold leading-none">404</h1>
+
+    <p class="text-statement font-ibm max-w-2xl">
+      This link doesn't match anything on this site.
+    </p>
+
+    <p class="text-lead font-ibm text-foreground-muted max-w-xl">
+      It might be mistyped, or the page moved. Head back to the work, or
+      message us with what you were looking for.
+    </p>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <Button title="Back to Home" size="sm" href="/" />
+      {/* Frame 404: CTA kedua = EMAIL US (outlined), bukan Let's Work Together.
+          Kalau mailto diem-diem gagal (mesin tanpa mail client), jalur kontaknya
+          tetap ada di footer bawah — email tampil sebagai teks + tombol copy. */}
+      <Button
+        title={COPY.contact.emailCta}
+        size="sm"
+        href={mailtoHref() || null}
+        variant="secondary"
+      />
+    </div>
+  </section>
+</Layout>

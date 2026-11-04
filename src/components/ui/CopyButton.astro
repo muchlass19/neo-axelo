@@ -1,0 +1,63 @@
+---
+/**
+ * Tombol copy, kontrak dari @backend-dev (F1-07):
+ * - `navigator.clipboard` cuma ada di secure context + butuh user gesture.
+ *   QA lewat `http://` + IP LAN = API-nya `undefined`, jadi WAJIB ada cabang
+ *   fallback: seleksi teks, label "Select to copy" — bukan "Copied".
+ * - Label baru berubah setelah `await writeText()` resolve; gagal → status error.
+ *   Tombol yang bilang "Copied" padahal clipboard kosong lebih buruk daripada
+ *   tombol yang nggak ada.
+ * - Yang di-copy SELALU `value` (nilai asli dari config), bukan `textContent`
+ *   tombol — label bisa ter-mask/terpotong dan user nempel string rusak tanpa
+ *   sadar sampai kirimannya gagal.
+ * - Status diumumkan lewat `role="status"` + `aria-live="polite"`.
+ */
+interface Props {
+  /** Nilai asli yang di-copy, contoh: "muchlas@neodigital.co.id". */
+  value: string;
+  label: string;
+  /**
+   * Id elemen yang isinya nilai terlihat (buat fallback seleksi manual),
+   * contoh: "contact-email". Opsional.
+   */
+  targetId?: string;
+  copiedLabel?: string;
+  fallbackLabel?: string;
+  variant?: "primary" | "secondary";
+}
+
+const {
+  value,
+  label,
+  targetId,
+  copiedLabel = "Copied",
+  fallbackLabel = "Select to copy",
+  variant = "secondary",
+} = Astro.props;
+
+const colorClasses =
+  variant === "secondary"
+    ? "border border-highlight text-highlight"
+    : "bg-highlight text-base-100";
+---
+
+<div class="copy-wrapper inline-flex items-center gap-2" data-copy-group>
+  <button
+    type="button"
+    class={`${colorClasses} text-sm whitespace-nowrap inline-flex items-center justify-center gap-2 min-h-[var(--size-control)] px-4 py-2 font-ibm font-semibold tracking-tight uppercase cursor-pointer`}
+    data-copy={value}
+    data-copy-target={targetId ? `#${targetId}` : undefined}
+    data-copy-done={copiedLabel}
+    data-copy-manual={fallbackLabel}
+    hidden
+  >
+    <span class="copy-label">{label}</span>
+  </button>
+  <span class="sr-only" role="status" aria-live="polite" data-copy-status></span>
+</div>
+
+<script>
+  import { initCopyButtons } from "../../scripts/copy";
+
+  initCopyButtons();
+</script>

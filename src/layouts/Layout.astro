@@ -1,9 +1,36 @@
 ---
 import "../styles/global.css";
+import "../styles/reveal.css";
 // import "../styles/preloader.css";
 
+import Footer from "../components/Footer.astro";
 import Navbar from "../components/Navbar.astro";
 import Preloader from "../components/Preloader.astro";
+import { COPY } from "../config/copy";
+import { SITE, siteBaseUrl } from "../config/site";
+
+interface Props {
+  /** Judul halaman; dipakai buat <title> + og:title. Default: nama site. */
+  title?: string;
+  /** Meta description; default `COPY.metaDescription`. Halaman project kirim `about`. */
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+const pageTitle = title ? `${title} — ${SITE.name}` : SITE.name;
+
+// F1-09 — fail-closed: tanpa `SITE.domain`, canonical/og:url nggak dirender
+// sama sekali (nol URL yang salah nempel di halaman). Description pakai teks
+// khusus meta (≤160 char), bukan heroIntro — lihat src/config/copy.ts.
+const baseUrl = siteBaseUrl();
+const canonical = baseUrl ? new URL(Astro.url.pathname, baseUrl).href : "";
+const metaDescription = (description ?? COPY.metaDescription).trim();
+// F1-09b: og:image = aset statis 1200×630, ikut fail-closed kayak canonical
+// (URL absolut butuh domain). Belum ada aset per-project.
+const ogImage = baseUrl ? `${baseUrl}/og-default.png` : "";
+
+// F1-03: brand loader cuma di home.
+const isHome = Astro.url.pathname === "/";
 ---
 
 <!doctype html>
@@ -13,15 +40,52 @@ import Preloader from "../components/Preloader.astro";
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" />
+    <!-- T-01: cuma Archivo Black (headline hero) yang di-preload. IBM Plex Mono
+         dipakai di bawah fold, biar nggak rebut bandwidth LCP. -->
+    <link
+      rel="preload"
+      href="/fonts/archivo-black-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <meta name="generator" content={Astro.generator} />
-    <title>Axelo Dev</title>
+    <title>{pageTitle}</title>
+    {canonical && <link rel="canonical" href={canonical} />}
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE.name} />
+    {canonical && <meta property="og:url" content={canonical} />}
+    {
+      metaDescription && (
+        <>
+          <meta name="description" content={metaDescription} />
+          <meta property="og:description" content={metaDescription} />
+        </>
+      )
+    }
+    {
+      ogImage && (
+        <>
+          <meta property="og:image" content={ogImage} />
+          <meta property="og:image:width" content="1200" />
+          <meta property="og:image:height" content="630" />
+          <meta name="twitter:card" content="summary_large_image" />
+        </>
+      )
+    }
   </head>
   <body class="bg-base-100 text-foreground">
-    <Preloader />
+    <Preloader full={isHome} />
     <Navbar />
     <slot />
+    <Footer />
 
     <script>
+      import { initReveals } from "../scripts/reveal";
+
+      initReveals();
+
       const originalTitle = document.title;
 
       document.addEventListener("visibilitychange", () => {

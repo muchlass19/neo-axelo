@@ -1,0 +1,34 @@
+/*
+ * Mask + baris reveal. Kelas ini dibuat oleh `src/scripts/splitLines.ts`
+ * (dipakai halaman project dan semua section baru), jadi elemennya nggak punya
+ * atribut scope Astro — CSS-nya harus global.
+ *
+ * Nama kelas `about-*` warisan dari halaman project tempat fungsi ini lahir;
+ * dipertahankan supaya `[slug].astro` nggak perlu diubah.
+ */
+
+.about-line-mask {
+  display: block;
+  overflow: hidden;
+  /* Ruang buat descender + aksen glyph yang keluar dari line box. */
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
+}
+
+.about-line {
+  display: block;
+  will-change: transform;
+}
+
+.about-word {
+  display: inline-block;
+  will-change: transform;
+}
+
+/* Reduced motion: nol transform, nol will-change. */
+@media (prefers-reduced-motion: reduce) {
+  .about-line,
+  .about-word {
+    will-change: auto;
+  }
+}

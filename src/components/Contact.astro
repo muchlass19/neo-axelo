@@ -1,0 +1,112 @@
+---
+// F1-07 — Contact / CTA closing.
+// AC @project-manager: `scrollWidth − innerWidth = 0` di 375 & 1440, heading
+// ≤2 baris, dan elemen display TIDAK boleh `width: max-content` (itu sumber
+// overflow +102). Jadi heading-nya block biasa yang wrap sendiri — nol wrapper
+// pengukur. Reveal dari sisi motion: clip 0.8s buat display, lines 0.9s buat
+// sub-line, fade 0.5s stagger 0.06 buat kontrol.
+import Button from "./ui/Button.astro";
+import CopyButton from "./ui/CopyButton.astro";
+import { COPY } from "../config/copy";
+import {
+  CONTACT,
+  mailtoHref,
+  whatsappDisplay,
+  whatsappHref,
+} from "../config/site";
+
+const { label, display, subline, whatsappCta, emailCta, copyCta } = COPY.contact;
+
+const wa = whatsappHref();
+const mail = mailtoHref();
+const phoneText = whatsappDisplay();
+const emailText = CONTACT.email.trim();
+---
+
+<section
+  id="contact"
+  class="px-4 md:px-12 max-[340px]:px-3 py-20 md:py-32 border-t border-base-300/40"
+>
+  <p
+    class="text-label-lg font-ibm uppercase tracking-tight text-foreground-muted"
+    data-reveal="fade"
+    data-reveal-duration="0.5"
+  >
+    {label}
+  </p>
+
+  <h2
+    class="text-display font-archivo font-bold uppercase mt-6"
+    data-reveal="clip"
+    data-reveal-duration="0.8"
+  >
+    {display}
+  </h2>
+
+  <p
+    class="text-lead font-ibm text-foreground-muted max-w-2xl mt-6"
+    data-reveal="lines"
+    data-reveal-duration="0.9"
+  >
+    {subline}
+  </p>
+
+  <!-- Kontak ditampilkan sebagai teks yang bisa dibaca/di-copy; `wa.me` dan
+       `mailto` tetap anchor polos (keluar dari handler Lenis, nol
+       preventDefault) karena itu satu-satunya jalur yang hidup kalau JS gagal. -->
+  <div class="mt-8 flex flex-col gap-4 md:flex-row md:items-center md:gap-8">
+    {
+      phoneText && (
+        <p class="text-label-lg font-ibm" data-copy-source="whatsapp">
+          <span class="text-foreground-muted">WhatsApp </span>
+          {phoneText}
+        </p>
+      )
+    }
+    {
+      emailText && (
+        <p id="contact-email" class="text-label-lg font-ibm break-all" data-copy-source="email">
+          <span class="text-foreground-muted">Email </span>
+          {emailText}
+        </p>
+      )
+    }
+  </div>
+
+  <div
+    class="mt-8 flex flex-col gap-3 md:flex-row md:items-center"
+    data-reveal="fade"
+    data-reveal-duration="0.5"
+    data-reveal-stagger="0.06"
+    data-reveal-delay="0.2"
+  >
+    {
+      wa && (
+        <Button
+          title={whatsappCta}
+          size="sm"
+          href={wa}
+          fullWidth
+          class="md:w-auto"
+        />
+      )
+    }
+    <div class="flex flex-wrap items-center gap-3">
+      {
+        mail && (
+          <Button
+            title={emailCta}
+            size="sm"
+            href={mail}
+            variant="secondary"
+          />
+        )
+      }
+      {
+        emailText && (
+          <CopyButton value={emailText} label={copyCta} targetId="contact-email" />
+        )
+      }
+    </div>
+  </div>
+</section>
