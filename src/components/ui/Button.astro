@@ -5,8 +5,11 @@
  * - `href` kosong  → render `<button disabled>` (non-interaktif: nol klik mati,
  *                    nol tab stop palsu). Untuk submit form nanti, kirim
  *                    `type="submit"` + `disabled={false}`.
- * - Tombol "+" cuma dekorasi animasi: `aria-hidden` + `tabindex="-1"`,
- *   jadi 1 CTA = 1 tab stop.
+ * Tombol "+" dibuang (ruling @user "sesuaikan sama design aja"): design nggak
+ * punya elemen kedua, dan tanpa dia timeline swap-nya cuma mentranslasikan
+ * tombol ke ruang kosong. Yang tinggal: scramble (tanda tangan CTA) + width lock.
+ * Mekanisme hover pengganti (A/B/C dari @motion-designer) belum dipilih @user,
+ * jadi belum ada state hover baru yang dipasang di sini.
  */
 interface Props {
   title: string;
@@ -52,11 +55,10 @@ const isInteractive = Boolean(href) && !disabled;
 
 const mainClasses = (cursor: string) =>
   `button-main ${colorClasses} ${SIZE_CLASS[size]} whitespace-nowrap ${cursor} ${fullWidth ? "w-full" : ""} min-h-[var(--size-control)] max-[400px]:px-3 px-4 md:px-8 py-2 font-ibm font-semibold tracking-tight uppercase`;
-const shrinkClasses = `${colorClasses} ${SIZE_CLASS[size]} whitespace-nowrap min-h-[var(--size-control)] px-3 md:px-4 py-2 font-ibm font-semibold uppercase`;
 ---
 
 <div
-  class={`btn-wrapper inline-flex gap-2 ${fullWidth ? "w-full" : ""} ${className}`}
+  class={`btn-wrapper inline-flex ${fullWidth ? "w-full" : ""} ${className}`}
   data-cta={isInteractive ? "interactive" : "pending"}
 >
   {
@@ -87,12 +89,6 @@ const shrinkClasses = `${colorClasses} ${SIZE_CLASS[size]} whitespace-nowrap min
       </button>
     )
   }
-
-  <span
-    class={`button-shrink ${shrinkClasses} hidden md:inline-flex items-center justify-center`}
-    aria-hidden="true"
-    tabindex="-1">+</span
-  >
 </div>
 
 <script>
@@ -107,8 +103,6 @@ const shrinkClasses = `${colorClasses} ${SIZE_CLASS[size]} whitespace-nowrap min
     wrapper: HTMLElement;
     main: HTMLElement;
     label: HTMLElement;
-    shrink: HTMLElement;
-    timeline: gsap.core.Timeline | null;
     scramble: gsap.core.Tween | null;
   }
 
@@ -120,15 +114,14 @@ const shrinkClasses = `${colorClasses} ${SIZE_CLASS[size]} whitespace-nowrap min
   const hasFinePointer = (): boolean =>
     window.matchMedia(POINTER_QUERY).matches;
 
-  // T-08: ukur ulang + bangun ulang timeline. Font swap mengubah lebar label,
-  // jadi jarak swap yang diukur di `load` bakal mendarat di posisi salah.
+  // T-08, disempitkan: dulu remeasure dipakai buat ngukur jarak swap (`+`).
+  // Sekarang yang perlu diukur cuma lebar pill, karena scramble nulis innerText
+  // per frame — tanpa width lock, lebarnya goyang tiap huruf berubah.
   function setupAnimation(entry: ButtonEntry): void {
-    const { wrapper, main, label, shrink } = entry;
+    const { main, label } = entry;
     const originalText = label.dataset.original ?? label.textContent ?? "";
     label.dataset.original = originalText;
 
-    entry.timeline?.kill();
-    entry.timeline = null;
     entry.scramble?.kill();
     entry.scramble = null;
 
@@ -136,28 +129,10 @@ const shrinkClasses = `${colorClasses} ${SIZE_CLASS[size]} whitespace-nowrap min
     // yang kepakai selamanya.
     main.style.width = "";
     main.style.textAlign = "";
-    gsap.set([main, shrink], { clearProps: "transform" });
     label.textContent = originalText;
 
-    const gap = Number.parseFloat(getComputedStyle(wrapper).gap) || 8;
-    const mainWidth = main.offsetWidth;
-    const moveMain = shrink.offsetWidth + gap;
-    const moveShrink = -(mainWidth + gap);
-
-    main.style.width = `${mainWidth}px`;
+    main.style.width = `${main.offsetWidth}px`;
     main.style.textAlign = "center";
-
-    const timeline = gsap.timeline({ paused: true });
-    timeline
-      .to(shrink, { rotate: 60, duration: 0.25, ease: "power1.inOut" })
-      .to(shrink, { scale: 0, duration: 0.25, ease: "power1.inOut" })
-      .addLabel("swap")
-      .to(main, { x: moveMain, duration: 0.3, ease: "power2.inOut" }, "swap")
-      .to(shrink, { x: moveShrink, duration: 0.3, ease: "power2.inOut" }, "swap")
-      .to(shrink, { scale: 1, duration: 0.25, ease: "power1.inOut" })
-      .to(shrink, { rotate: 0, duration: 0.25, ease: "power1.inOut" });
-
-    entry.timeline = timeline;
   }
 
   function playScramble(entry: ButtonEntry): void {
@@ -199,33 +174,24 @@ const shrinkClasses = `${colorClasses} ${SIZE_CLASS[size]} whitespace-nowrap min
   }
 
   function teardown(entry: ButtonEntry): void {
-    entry.timeline?.kill();
-    entry.timeline = null;
     resetLabel(entry);
     entry.main.style.width = "";
     entry.main.style.textAlign = "";
-    gsap.set([entry.main, entry.shrink], { clearProps: "transform" });
   }
 
   function collectEntries(): ButtonEntry[] {
     const found: ButtonEntry[] = [];
     document.querySelectorAll<HTMLElement>(".btn-wrapper").forEach((wrapper) => {
+      // CTA tanpa target (`data-cta="pending"`) nol motion sama sekali: kontrol
+      // yang nggak bisa diklik tapi tetap beranimasi kebaca "lagi kerja".
+      if (wrapper.dataset.cta !== "interactive") return;
+
       const main = wrapper.querySelector<HTMLElement>(".button-main");
       const label = wrapper.querySelector<HTMLElement>(".button-label");
-      const shrink = wrapper.querySelector<HTMLElement>(".button-shrink");
-      if (!main || !label || !shrink) return;
-      // CTA tanpa target dirender `<button disabled>`: nggak ada animasi buat
-      // elemen yang nggak bisa diklik.
+      if (!main || !label) return;
       if (main instanceof HTMLButtonElement && main.disabled) return;
 
-      found.push({
-        wrapper,
-        main,
-        label,
-        shrink,
-        timeline: null,
-        scramble: null,
-      });
+      found.push({ wrapper, main, label, scramble: null });
     });
     return found;
   }
@@ -236,11 +202,9 @@ const shrinkClasses = `${colorClasses} ${SIZE_CLASS[size]} whitespace-nowrap min
     wrapper.__btnBound = true;
 
     const enter = (): void => {
-      entry.timeline?.play();
       playScramble(entry);
     };
     const leave = (): void => {
-      entry.timeline?.reverse();
       resetLabel(entry);
     };
 
