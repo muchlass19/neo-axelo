@@ -6,7 +6,8 @@
 // nggak ada elemen display panjang yang bisa overflow.
 import Layout from "../layouts/Layout.astro";
 import Button from "../components/ui/Button.astro";
-import { contactHref } from "../config/site";
+import { COPY } from "../config/copy";
+import { mailtoHref } from "../config/site";
 ---
 
 <Layout title="Page not found">
@@ -26,7 +27,15 @@ import { contactHref } from "../config/site";
 
     <div class="flex flex-wrap items-center gap-3">
       <Button title="Back to Home" size="sm" href="/" />
-      <Button title="Let's Work Together" size="sm" href={contactHref() || null} variant="secondary" />
+      {/* Frame 404: CTA kedua = EMAIL US (outlined), bukan Let's Work Together.
+          Kalau mailto diem-diem gagal (mesin tanpa mail client), jalur kontaknya
+          tetap ada di footer bawah — email tampil sebagai teks + tombol copy. */}
+      <Button
+        title={COPY.contact.emailCta}
+        size="sm"
+        href={mailtoHref() || null}
+        variant="secondary"
+      />
     </div>
   </section>
 </Layout>
