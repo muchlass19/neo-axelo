@@ -212,21 +212,28 @@ const mainClasses = (cursor: string) =>
     if (wrapper.__btnBound) return;
     wrapper.__btnBound = true;
 
-    const enter = (): void => {
+    const rollOn = (): void => {
       entry.wrapper.classList.add("is-rolling");
       playScramble(entry);
     };
-    const leave = (): void => {
+    const rollOff = (): void => {
       entry.wrapper.classList.remove("is-rolling");
       resetLabel(entry);
     };
 
-    wrapper.addEventListener("mouseenter", enter);
-    wrapper.addEventListener("mouseleave", leave);
-    // Paritas keyboard: CTA sekarang punya href, jadi fokus itu jalur utama
-    // user keyboard — hover-only bikin mereka nggak dapat apa-apa.
-    wrapper.addEventListener("focusin", enter);
-    wrapper.addEventListener("focusout", leave);
+    wrapper.addEventListener("mouseenter", rollOn);
+    // `mouseleave` tetap nyabut roll-nya walau fokus masih nyangkut di elemen
+    // (klik lalu mouse pergi = nol roll yang latch).
+    wrapper.addEventListener("mouseleave", rollOff);
+    // Paritas keyboard tanpa nyalin motion pointer: klik mouse juga nge-fire
+    // `focusin`, tapi elemennya nggak match `:focus-visible` — satu cek itu yang
+    // misahin keyboard dari mouse, jadi user yang nge-Tab di Contact nggak dapet
+    // tiga roll beruntun tepat waktu dia lagi baca labelnya.
+    wrapper.addEventListener("focusin", () => {
+      if (!entry.main.matches(":focus-visible")) return;
+      rollOn();
+    });
+    wrapper.addEventListener("focusout", rollOff);
   }
 
   function activate(): void {
@@ -301,6 +308,17 @@ const mainClasses = (cursor: string) =>
     transition: transform 0.35s cubic-bezier(0.215, 0.61, 0.355, 1);
   }
 
+  /* Keyboard: state fokus yang DIAM (color flip) buat semua orang, bukan cuma
+     yang minta reduced motion — dan itu feedback yang lebih jelas dari roll,
+     karena roll-nya dipicu pointer, bukan fokus (@motion-designer). */
+  .btn-wrapper[data-cta="interactive"] .button-main:focus-visible {
+    background-color: var(--color-base-100);
+    color: var(--color-highlight);
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
+  }
+
   /* Baseline B: di bawah reduced-motion roll + scramble mati, hover jadi color
      flip saja — satu aturan buat primary dan secondary (dua-duanya invert). */
   @media (prefers-reduced-motion: reduce) {
@@ -310,8 +328,7 @@ const mainClasses = (cursor: string) =>
         color 0.2s ease;
     }
 
-    .btn-wrapper[data-cta="interactive"] .button-main:hover,
-    .btn-wrapper[data-cta="interactive"] .button-main:focus-visible {
+    .btn-wrapper[data-cta="interactive"] .button-main:hover {
       background-color: var(--color-base-100);
       color: var(--color-highlight);
     }
