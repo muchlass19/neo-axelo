@@ -1,0 +1,100 @@
+<!doctype html>
+<!--
+  F1-09b — sumber kartu og:image (Axelo Dev)
+  Hasil: public/og-default.png (1200x630, ~24,6 KB)
+
+  Cara render ulang (nol dependency, pakai woff2 asli repo):
+    1. cp design/og-card.html dist/og-render.html
+    2. buka http://127.0.0.1:4399/og-render.html (server statis dari dist/)
+    3. screenshot viewport 1200x630, deviceScaleFactor 1, nol transform
+  Font di-load dari /fonts/*.woff2, jadi halaman ini HARUS disajikan dari root
+  situs (dist/), bukan dibuka lewat file:// — kalau tidak, font jatuh ke fallback
+  dan kartunya salah lebar.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Axelo — og:image source (1200×630)</title>
+    <style>
+      @font-face {
+        font-family: "Archivo Black";
+        font-weight: 400;
+        font-display: block;
+        src: url("/fonts/archivo-black-latin.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "IBM Plex Mono";
+        font-weight: 400;
+        font-display: block;
+        src: url("/fonts/ibm-plex-mono-400-latin.woff2") format("woff2");
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: #1e1e1e;
+      }
+      .card {
+        position: relative;
+        width: 1200px;
+        height: 630px;
+        box-sizing: border-box;
+        background: #1e1e1e;
+        padding: 0 72px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      /* Wordmark: 160px = 1001px lebar teks, box tersedia 1056px. */
+      .mark {
+        font-family: "Archivo Black", sans-serif;
+        font-weight: 700;
+        font-size: 160px;
+        line-height: 0.85;
+        letter-spacing: -0.01em;
+        color: #eeeeee;
+        white-space: nowrap;
+      }
+      .mark .dot {
+        color: #fd551d;
+      }
+      /* Metadata: 26px + #a1a1a1 (bukan --color-foreground-muted #818081) —
+         kartu ini dibaca di ~25% ukuran di feed, jadi abu-abu brand tenggelam.
+         Deviasi medium, bukan drift brand: hue-nya nol berubah. */
+      .meta {
+        margin-top: 34px;
+        display: flex;
+        justify-content: flex-start;
+        align-items: baseline;
+        gap: 28px;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 26px;
+        line-height: 1.2;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #a1a1a1;
+      }
+      .meta .live {
+        color: #eeeeee;
+      }
+      .bar {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 1200px;
+        height: 8px;
+        background: #fd551d;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="mark">AXELO<span class="dot">.</span>DEV</div>
+      <div class="meta">
+        <span>Design + development, in one team</span>
+        <span class="live">Indonesia</span>
+      </div>
+      <div class="bar"></div>
+    </div>
+  </body>
+</html>
