@@ -24,7 +24,13 @@ const pad = (value: number): string => String(value).padStart(2, "0");
   </div>
 
   <div class="project-names">
-    {projects.map((project) => <p>{project.name}</p>)}
+    {
+      projects.map((project) => (
+        <a href={project.link} class="project-name">
+          {project.shortName}
+        </a>
+      ))
+    }
   </div>
 
   <div class="project-preview">
@@ -37,6 +43,7 @@ const pad = (value: number): string => String(value).padStart(2, "0");
                 href={project.link}
                 class="project-link"
                 aria-label={project.name}
+                tabindex="-1"
               >
                 <Image
                   src={project.image}
@@ -54,10 +61,10 @@ const pad = (value: number): string => String(value).padStart(2, "0");
 
   <div class="project-caption">
     <p class="project-caption-title" data-prefix={COPY.work.labelPrefix}>
-      {COPY.work.labelPrefix} {pad(1)} — {projects[0].name}
+      {COPY.work.labelPrefix} {pad(1)} — {projects[0].shortName}
     </p>
     <a class="project-caption-link" href={projects[0].link}>
-      {COPY.work.openCaseStudy}
+      {COPY.work.openCaseStudy}<span aria-hidden="true">→</span>
     </a>
   </div>
 </section>
@@ -103,8 +110,10 @@ const pad = (value: number): string => String(value).padStart(2, "0");
     z-index: 2;
   }
 
-  .spotlight .project-names p {
+  .spotlight .project-names a {
+    display: block;
     margin: 0;
+    text-decoration: none;
     font-family: var(--font-archivo), sans-serif;
     font-weight: 700;
     text-transform: uppercase;
@@ -113,6 +122,11 @@ const pad = (value: number): string => String(value).padStart(2, "0");
     letter-spacing: -0.01em;
     color: #4a4a4a;
     transition: color 0.3s ease;
+  }
+
+  .spotlight .project-names a:hover,
+  .spotlight .project-names a:focus-visible {
+    color: #ffffff;
   }
 
   /* Kolom kanan. Caption punya strip sendiri di bawah, jadi gambar nggak pernah
@@ -222,8 +236,10 @@ const pad = (value: number): string => String(value).padStart(2, "0");
       max-width: 82%;
     }
 
-    .spotlight .project-names p {
-      font-size: clamp(1.5rem, 7.5vw, 2.25rem);
+    .spotlight .project-names a {
+      /* 4 nama harus tetap SATU baris di 375/320 (design). Di 7,5vw nama
+         terpanjang ("Daihatsu Sparepart") keukur 2 baris, jadi tier-nya turun. */
+      font-size: clamp(1.25rem, 6.2vw, 2rem);
     }
 
     /* Band preview: nama di atas, gambar di bawahnya, caption paling bawah —
@@ -289,7 +305,7 @@ const pad = (value: number): string => String(value).padStart(2, "0");
       ".project-images",
     ) as HTMLElement | null;
     const projectNames =
-      spotlightSection.querySelectorAll<HTMLElement>(".project-names p");
+      spotlightSection.querySelectorAll<HTMLElement>(".project-names a");
     const projectNamesContainer = spotlightSection.querySelector(
       ".project-names",
     ) as HTMLElement | null;

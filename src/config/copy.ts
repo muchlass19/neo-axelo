@@ -31,6 +31,8 @@ export interface CopyConfig {
    */
   work: {
     labelPrefix: string;
+    /** Tanpa panah — panahnya jadi `<span aria-hidden>` di markup, jadi screen
+     *  reader baca "Open case study" saja. */
     openCaseStudy: string;
   };
   /** F1-05: client index dalam bentuk type (nol aset logo, nol marquee). */
@@ -82,7 +84,7 @@ export const COPY: CopyConfig = {
   caseStudyEyebrow: "Case study",
   work: {
     labelPrefix: "Project",
-    openCaseStudy: "Open case study →",
+    openCaseStudy: "Open case study ",
   },
   clients: {
     label: "Clients",
