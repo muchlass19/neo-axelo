@@ -18,6 +18,8 @@ interface Props {
   ariaLabel?: string;
   disabled?: boolean;
   type?: "button" | "submit";
+  /** Full-width di mobile (mis. kontrol kontak 375: WhatsApp satu baris penuh). */
+  fullWidth?: boolean;
 }
 
 const {
@@ -29,6 +31,7 @@ const {
   ariaLabel,
   disabled,
   type = "button",
+  fullWidth = false,
 } = Astro.props;
 
 // Map statis: `text-${size}` nggak pernah kebaca scanner Tailwind 4, jadi prop
@@ -48,12 +51,12 @@ const isDisabled = disabled ?? !href;
 const isInteractive = Boolean(href) && !disabled;
 
 const mainClasses = (cursor: string) =>
-  `button-main ${colorClasses} ${SIZE_CLASS[size]} whitespace-nowrap ${cursor} min-h-[var(--size-control)] max-[400px]:px-3 px-4 md:px-8 py-2 font-ibm font-semibold tracking-tight uppercase`;
+  `button-main ${colorClasses} ${SIZE_CLASS[size]} whitespace-nowrap ${cursor} ${fullWidth ? "w-full" : ""} min-h-[var(--size-control)] max-[400px]:px-3 px-4 md:px-8 py-2 font-ibm font-semibold tracking-tight uppercase`;
 const shrinkClasses = `${colorClasses} ${SIZE_CLASS[size]} whitespace-nowrap min-h-[var(--size-control)] px-3 md:px-4 py-2 font-ibm font-semibold uppercase`;
 ---
 
 <div
-  class={`btn-wrapper inline-flex gap-2 ${className}`}
+  class={`btn-wrapper inline-flex gap-2 ${fullWidth ? "w-full" : ""} ${className}`}
   data-cta={isInteractive ? "interactive" : "pending"}
 >
   {

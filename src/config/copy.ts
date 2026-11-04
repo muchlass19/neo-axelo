@@ -45,6 +45,18 @@ export interface CopyConfig {
     socialsLabel: string;
     backToTop: string;
   };
+  /**
+   * F1-14 (frame home 1440/375): strip index di bawah headline. Angka-nya
+   * DI-DERIVE dari data (jumlah project, klien, layanan) — jangan hardcode,
+   * nanti salah sendiri begitu project kelima masuk.
+   */
+  heroIndex: {
+    workLabel: string;
+    clientsLabel: string;
+    servicesLabel: string;
+    /** Pending sign-off @creative-researcher (satu string, bukan struktur). */
+    location: string;
+  };
 }
 
 export const COPY: CopyConfig = {
@@ -98,5 +110,11 @@ export const COPY: CopyConfig = {
     contactLabel: "Contact",
     socialsLabel: "Socials",
     backToTop: "Back to top",
+  },
+  heroIndex: {
+    workLabel: "Work",
+    clientsLabel: "Clients",
+    servicesLabel: "Services",
+    location: "Based in Indonesia",
   },
 };

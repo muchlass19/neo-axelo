@@ -74,17 +74,39 @@ const emailText = CONTACT.email.trim();
   </div>
 
   <div
-    class="mt-8 flex flex-wrap items-center gap-3"
+    class="mt-8 flex flex-col gap-3 md:flex-row md:items-center"
     data-reveal="fade"
     data-reveal-duration="0.5"
     data-reveal-stagger="0.06"
+    data-reveal-delay="0.2"
   >
-    {wa && <Button title={whatsappCta} size="sm" href={wa} />}
-    {mail && <Button title={emailCta} size="sm" href={mail} variant="secondary" />}
     {
-      emailText && (
-        <CopyButton value={emailText} label={copyCta} targetId="contact-email" />
+      wa && (
+        <Button
+          title={whatsappCta}
+          size="sm"
+          href={wa}
+          fullWidth
+          class="md:w-auto"
+        />
       )
     }
+    <div class="flex flex-wrap items-center gap-3">
+      {
+        mail && (
+          <Button
+            title={emailCta}
+            size="sm"
+            href={mail}
+            variant="secondary"
+          />
+        )
+      }
+      {
+        emailText && (
+          <CopyButton value={emailText} label={copyCta} targetId="contact-email" />
+        )
+      }
+    </div>
   </div>
 </section>

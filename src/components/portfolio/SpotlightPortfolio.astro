@@ -1,41 +1,9 @@
 ---
 import { Image } from "astro:assets";
-import anessaWeb from "../../../public/projects/anessa/anessa-web.png";
-import daihatsuWeb from "../../../public/projects/daihatsu-web.png";
-import daihatsuOm from "../../../public/projects/daihatsu-om.png";
-import daihatsuSparepart from "../../../public/projects/daihatsu-sparepart.png";
+import { PROJECTS, paddedProjectCount } from "../../data/projects";
 
-const projectDefinitions = [
-  {
-    image: anessaWeb,
-    name: "Anessa Main Website",
-    summary: "Corporate marketing site for Anessa skincare",
-    link: "/projects/anessa-web",
-  },
-  {
-    image: daihatsuWeb,
-    name: "Daihatsu Main Website",
-    summary: "Official landing page for Daihatsu vehicles",
-    link: "/projects/daihatsu-web",
-  },
-  {
-    image: daihatsuOm,
-    name: "Daihatsu Owner Manual PWA",
-    summary: "Progressive web app for vehicle owner manuals",
-    link: "projects/daihatsu-om",
-  },
-  {
-    image: daihatsuSparepart,
-    name: "Daihatsu Sparepart Catalog",
-    summary: "Digital catalog for genuine Daihatsu spare parts",
-    link: "/projects/daihatsu-sparepart",
-  },
-];
-
-// Urutan 8 item: daftar asal diulang 2x.
-const projects = [...projectDefinitions];
-const totalProjectCount = projects.length;
-const paddedTotal = String(totalProjectCount).padStart(2, "0");
+const projects = [...PROJECTS];
+const paddedTotal = paddedProjectCount();
 ---
 
 <section class="spotlight" id="work">

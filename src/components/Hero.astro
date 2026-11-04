@@ -2,14 +2,28 @@
 import Button from "./ui/Button.astro";
 import { COPY } from "../config/copy";
 import { isValidUrl, SOCIALS } from "../config/site";
+import { PROJECTS } from "../data/projects";
 
 // T-04: teks hero dari @creative-researcher (src/config/copy.ts). Selama masih
 // kosong, paragrafnya nggak dirender — bukan lorem ipsum.
 const heroIntro = COPY.heroIntro.trim();
+
+// F1-14 (frame home): strip index di bawah headline. Angka di-derive dari data,
+// bukan ditulis manual — project ke-5 nggak boleh bikin label bohong.
+const pad = (value: number): string => String(value).padStart(2, "0");
+const heroIndexLine = [
+  `${COPY.heroIndex.workLabel} ${pad(PROJECTS.length)}`,
+  `${COPY.heroIndex.clientsLabel} ${pad(COPY.clients.names.length)}`,
+  `${COPY.heroIndex.servicesLabel} ${pad(COPY.services.items.length)}`,
+  COPY.heroIndex.location,
+].join("  /  ");
 ---
 
-<div class="px-4 md:px-12" id="top">
-  <div class="mx-auto hero-copy p-8 h-full flex flex-col justify-center gap-8">
+<div
+  class="px-4 md:px-12 md:min-h-[806px] md:flex md:flex-col"
+  id="top"
+>
+  <div class="mx-auto hero-copy p-6 md:p-8 h-full flex flex-col justify-center gap-8">
     <!-- F1-02: type dari token (12vw, bukan 16vw — 16vw selalu kalah lawan box
          dan itu sumber overflow +102 @1440). Mobile dipecah 2 baris lewat
          `block md:inline`: SplitText bikin wrapper per baris, jadi mask-block
@@ -19,10 +33,19 @@ const heroIntro = COPY.heroIntro.trim();
         >.DEV</span
       >
     </h1>
+
+    <p
+      class="text-label font-ibm uppercase tracking-tight text-foreground-muted"
+      data-reveal="fade"
+      data-reveal-duration="0.5"
+      data-reveal-delay="0.3"
+    >
+      {heroIndexLine}
+    </p>
   </div>
 
   <div
-    class="grid md:grid-cols-2 py-4 my-4 md:py-12 md:my-12 uppercase tracking-tight font-ibm"
+    class="grid md:grid-cols-2 py-2 my-2 md:py-10 md:my-8 uppercase tracking-tight font-ibm"
   >
     <div class="text-label-lg text-foreground-muted md:text-foreground">
       What we'll do
@@ -32,14 +55,14 @@ const heroIntro = COPY.heroIntro.trim();
         heroIntro.length > 0 && <p class="text-lead">{heroIntro}</p>
       }
 
-      <div class="mt-4 w-full">
+      <div class="mt-3 md:mt-4 w-full">
         <Button title="See The Work" size="sm" href="#work" />
       </div>
     </div>
   </div>
 
   <div
-    class="grid md:grid-cols-2 py-4 md:py-12 uppercase tracking-tight font-ibm"
+    class="grid md:grid-cols-2 py-2 md:py-10 uppercase tracking-tight font-ibm"
   >
     <div class="text-label-lg text-foreground-muted md:text-foreground">
       Socials
