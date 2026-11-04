@@ -24,6 +24,15 @@ export interface CopyConfig {
    * baru kita buang di 404 ("Error 404" + "404" + statement). Nol wrap di 320.
    */
   caseStudyEyebrow: string;
+  /**
+   * F1-19 (frame WORK): caption di bawah preview portfolio.
+   * `labelPrefix` + angka + nama project, plus link ke case study-nya.
+   * Dua string ini dari design render — pending sign-off @creative-researcher.
+   */
+  work: {
+    labelPrefix: string;
+    openCaseStudy: string;
+  };
   /** F1-05: client index dalam bentuk type (nol aset logo, nol marquee). */
   clients: {
     label: string;
@@ -71,6 +80,10 @@ export const COPY: CopyConfig = {
   metaDescription:
     "Axelo Dev builds websites, digital products, and progressive web apps for brands in Indonesia — design and development in one team, from wireframe to launch.",
   caseStudyEyebrow: "Case study",
+  work: {
+    labelPrefix: "Project",
+    openCaseStudy: "Open case study →",
+  },
   clients: {
     label: "Clients",
     names: [
