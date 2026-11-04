@@ -89,7 +89,7 @@ export function getStaticPaths() {
 const { title, image, about, services, backgroundImage, backgroundVideo, backgroundTitle, backgroundDesc, challengeTitle, challengeDesc, challengeImage, challengeVideo } = Astro.props;
 ---
 
-<Layout title={title}>
+<Layout title={title} description={about}>
   <section class="project-detail-hero">
     <div class="project-hero-frame">
       <h1 class="project-hero-title font-ibm text-white">{title}</h1>
