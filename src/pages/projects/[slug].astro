@@ -112,12 +112,12 @@ const { title, image, about, services, backgroundImage, backgroundVideo, backgro
     </div>
   </section>
 
-  <section class="project-background grid grid-cols-1 md:grid-cols-2 w-full">
-    <div class="background-left flex flex-col justify-center gap-2">
+  <section class="project-background w-full">
+    <div class="background-head">
       <p class="about-label">Background</p>
       <p class="background-title">{backgroundTitle}</p>
-      <div class="background-body text-foreground-muted" set:html={backgroundDesc} />
     </div>
+
     <div class="background-right">
       {backgroundVideo ? (
         <video class="w-full h-full object-cover" src={backgroundVideo} autoplay muted loop playsinline preload="auto" aria-label={backgroundTitle} />
@@ -125,6 +125,8 @@ const { title, image, about, services, backgroundImage, backgroundVideo, backgro
         <Image class="w-full h-full object-cover" src={backgroundImage} alt={backgroundTitle} loading="eager" decoding="async" />
       )}
     </div>
+
+    <div class="background-body text-foreground-muted" set:html={backgroundDesc} />
   </section>
 
   <section class="project-challenge grid grid-cols-1 md:grid-cols-2 w-full">
@@ -541,13 +543,63 @@ const { title, image, about, services, backgroundImage, backgroundVideo, backgro
     max-width: 32rem;
   }
 
-  .project-background,
+  /* F1-15 (frame project-1440-v2 @figcraft-designer): dua blok 1.267px yang
+     identik tinggi berhenti monoton. `background` = media penuh (1440×560)
+     dengan judul di atas + body di bawah; `challenge` tetap split tapi
+     diukur lebih pendek (media 620) dengan hairline sebagai penanda blok. */
+  .project-background {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 2rem 0;
+  }
+
+  .background-head,
+  .project-background > .background-body {
+    width: min(90vw, 1180px);
+    margin: 0 auto;
+  }
+
+  .background-head {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  /* Frame: judul background dibaca full-width di dalam kontainer (2 baris @1440),
+     bukan kekunci di 32rem kayak blok text-column. Body-nya tetap dibatasi biar
+     barisnya nggak jadi terlalu panjang buat dibaca. */
+  .project-background .background-title {
+    max-width: none;
+  }
+
+  .project-background > .background-body {
+    max-width: 42rem;
+  }
+
+  .project-background > .background-right {
+    width: 100%;
+  }
+
+  .project-challenge {
+    border-top: 1px solid var(--color-base-300, #3e3e42);
+  }
+
+  @media (min-width: 768px) {
+    .project-background > .background-right {
+      height: 560px;
+    }
+
+    .challenge-left {
+      height: 620px;
+    }
+  }
+
   .project-challenge {
     align-items: stretch;
     grid-template-rows: minmax(0, 1fr);
   }
 
-  .background-left,
   .challenge-right {
     justify-content: center;
     text-align: left;
@@ -668,6 +720,10 @@ const { title, image, about, services, backgroundImage, backgroundVideo, backgro
     .background-left,
     .challenge-right {
       padding: 1.5rem;
+    }
+
+    .project-background {
+      padding: 1.5rem 0;
     }
   }
 </style>
