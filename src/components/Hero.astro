@@ -10,19 +10,19 @@ const heroIntro = COPY.heroIntro.trim();
 
 // F1-14 (frame home): strip index di bawah headline. Angka di-derive dari data,
 // bukan ditulis manual — project ke-5 nggak boleh bikin label bohong.
+// Urutan (kualifier dulu, lalu tiga counter sebagai satu grup) dari
+// @creative-researcher: pola `NOUN + angka` yang diakhiri frasa tanpa angka
+// kebaca orphan, jadi item non-angka dipindah ke depan.
 const pad = (value: number): string => String(value).padStart(2, "0");
 const heroIndexLine = [
+  COPY.heroIndex.location,
   `${COPY.heroIndex.workLabel} ${pad(PROJECTS.length)}`,
   `${COPY.heroIndex.clientsLabel} ${pad(COPY.clients.names.length)}`,
   `${COPY.heroIndex.servicesLabel} ${pad(COPY.services.items.length)}`,
-  COPY.heroIndex.location,
 ].join("  /  ");
 ---
 
-<div
-  class="px-4 md:px-12 md:min-h-[806px] md:flex md:flex-col"
-  id="top"
->
+<div class="px-4 md:px-12" id="top">
   <div class="mx-auto hero-copy p-6 md:p-8 h-full flex flex-col justify-center gap-8">
     <!-- F1-02: type dari token (12vw, bukan 16vw — 16vw selalu kalah lawan box
          dan itu sumber overflow +102 @1440). Mobile dipecah 2 baris lewat
