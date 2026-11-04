@@ -4,7 +4,22 @@ import "../styles/global.css";
 
 import Navbar from "../components/Navbar.astro";
 import Preloader from "../components/Preloader.astro";
-import { SITE } from "../config/site";
+import { COPY } from "../config/copy";
+import { SITE, siteBaseUrl } from "../config/site";
+
+interface Props {
+  /** Judul halaman; dipakai buat <title> + og:title. Default: nama site. */
+  title?: string;
+}
+
+const { title } = Astro.props;
+const pageTitle = title ? `${title} — ${SITE.name}` : SITE.name;
+
+// F1-09 — fail-closed: tanpa `SITE.domain`, canonical/og:url/description
+// nggak dirender sama sekali (nol URL yang salah nempel di halaman).
+const baseUrl = siteBaseUrl();
+const canonical = baseUrl ? new URL(Astro.url.pathname, baseUrl).href : "";
+const description = COPY.heroIntro.trim();
 
 // F1-03: brand loader cuma di home.
 const isHome = Astro.url.pathname === "/";
@@ -27,7 +42,14 @@ const isHome = Astro.url.pathname === "/";
       crossorigin
     />
     <meta name="generator" content={Astro.generator} />
-    <title>{SITE.name}</title>
+    <title>{pageTitle}</title>
+    {canonical && <link rel="canonical" href={canonical} />}
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE.name} />
+    {canonical && <meta property="og:url" content={canonical} />}
+    {description && <meta name="description" content={description} />}
+    {description && <meta property="og:description" content={description} />}
   </head>
   <body class="bg-base-100 text-foreground">
     <Preloader full={isHome} />

@@ -1,0 +1,36 @@
+---
+// F1-10 — halaman 404.
+// Pakai token F1-01 (text-display / text-statement / text-lead) dan Button
+// polymorphic, jadi tonenya sama dengan halaman lain. `404` di tier display
+// (3 karakter) aman di semua lebar; heading-nya sengaja di tier statement biar
+// nggak ada elemen display panjang yang bisa overflow.
+import Layout from "../layouts/Layout.astro";
+import Button from "../components/ui/Button.astro";
+import { contactHref } from "../config/site";
+---
+
+<Layout title="Page not found">
+  <section
+    class="px-4 md:px-12 py-16 md:py-24 min-h-[60svh] flex flex-col justify-center gap-6"
+  >
+    <p class="text-label uppercase tracking-tight text-foreground-muted font-ibm">
+      Error 404
+    </p>
+
+    <h1 class="text-display font-archivo font-bold leading-none">404</h1>
+
+    <p class="text-statement font-ibm max-w-2xl">
+      This page doesn't exist, or it moved somewhere else.
+    </p>
+
+    <p class="text-lead font-ibm text-foreground-muted max-w-xl">
+      The work is still where you left it. Head back to the home page, or tell
+      us what you were looking for.
+    </p>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <Button title="Back to Home" size="sm" href="/" />
+      <Button title="Let's Work Together" size="sm" href={contactHref() || null} variant="secondary" />
+    </div>
+  </section>
+</Layout>

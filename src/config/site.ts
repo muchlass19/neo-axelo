@@ -50,8 +50,25 @@ export interface ContactCtaConfig {
 
 export const SITE: SiteConfig = {
   name: "Axelo Dev",
+  /**
+   * TODO(user): domain final, contoh "axelo.dev" atau "www.axelo.dev".
+   * Format `https://…` juga diterima (di-strip oleh siteBaseUrl()).
+   * Kosong = SEO fail-closed (nol canonical/og:url/sitemap — lihat astro.config.ts).
+   */
   domain: "",
 };
+
+/**
+ * `https://<domain>` tanpa trailing slash, atau "" kalau domain belum diisi.
+ * Satu-satunya tempat domain diterjemahkan jadi base URL.
+ */
+export function siteBaseUrl(): string {
+  const domain = SITE.domain
+    .trim()
+    .replace(/^https?:\/\//i, "")
+    .replace(/\/+$/, "");
+  return domain ? `https://${domain}` : "";
+}
 
 export const CONTACT: ContactConfig = {
   // TODO(user): isi nomor WhatsApp, contoh: "08123456789" atau "+62 812-3456-7890".

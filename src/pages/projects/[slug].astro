@@ -89,7 +89,7 @@ export function getStaticPaths() {
 const { title, image, about, services, backgroundImage, backgroundVideo, backgroundTitle, backgroundDesc, challengeTitle, challengeDesc, challengeImage, challengeVideo } = Astro.props;
 ---
 
-<Layout>
+<Layout title={title}>
   <section class="project-detail-hero">
     <div class="project-hero-frame">
       <h1 class="project-hero-title font-ibm text-white">{title}</h1>
@@ -112,7 +112,7 @@ const { title, image, about, services, backgroundImage, backgroundVideo, backgro
     </div>
   </section>
 
-  <section class="project-background grid grid-cols-2 w-full">
+  <section class="project-background grid grid-cols-1 md:grid-cols-2 w-full">
     <div class="background-left flex flex-col justify-center gap-2">
       <p class="about-label">Background</p>
       <p class="background-title">{backgroundTitle}</p>
@@ -127,7 +127,7 @@ const { title, image, about, services, backgroundImage, backgroundVideo, backgro
     </div>
   </section>
 
-  <section class="project-challenge grid grid-cols-2 w-full">
+  <section class="project-challenge grid grid-cols-1 md:grid-cols-2 w-full">
     <div class="challenge-left">
       {challengeVideo ? (
         <video class="w-full h-full object-cover" src={challengeVideo} autoplay muted loop playsinline preload="auto" aria-label={challengeTitle} />
@@ -704,6 +704,18 @@ const { title, image, about, services, backgroundImage, backgroundVideo, backgro
 
     .service-item {
       margin-left: 0;
+    }
+
+    /* F1-13 — kolom teks halaman project: dulu tetap 2 kolom (124px) di mobile.
+       Sekarang satu kolom per baris (markup: grid-cols-1 md:grid-cols-2) dan
+       padding-nya ikut disesuaikan. */
+    .about-left {
+      padding-bottom: 2rem;
+    }
+
+    .background-left,
+    .challenge-right {
+      padding: 1.5rem;
     }
   }
 </style>
