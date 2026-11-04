@@ -18,6 +18,12 @@ export interface CopyConfig {
    * kepotong Google di ~155-160 dan bikin hero & SERP punya teks identik.
    */
   metaDescription: string;
+  /**
+   * F1-16: eyebrow halaman project. Konstanta `Case study`, BUKAN
+   * `Case study — {title}`: versi itu mengulang H1 persis di bawahnya, pola yang
+   * baru kita buang di 404 ("Error 404" + "404" + statement). Nol wrap di 320.
+   */
+  caseStudyEyebrow: string;
   /** F1-05: client index dalam bentuk type (nol aset logo, nol marquee). */
   clients: {
     label: string;
@@ -44,11 +50,6 @@ export interface CopyConfig {
     contactLabel: string;
     socialsLabel: string;
     backToTop: string;
-    /**
-     * Baris bawah footer, kanan (frame footer-v2). Turunan dari heading
-     * Services; pending sign-off @creative-researcher.
-     */
-    tagline: string;
   };
   /**
    * F1-14 (frame home 1440/375): strip index di bawah headline. Angka-nya
@@ -69,6 +70,7 @@ export const COPY: CopyConfig = {
     "Axelo builds websites and digital products for brands in Indonesia — from consumer launches to automotive platforms and part catalogs. Design and development sit in one team, so the people who plan the experience are the ones who ship it. Sites, progressive web apps, catalogs — built to be used, not just looked at.",
   metaDescription:
     "Axelo Dev builds websites, digital products, and progressive web apps for brands in Indonesia — design and development in one team, from wireframe to launch.",
+  caseStudyEyebrow: "Case study",
   clients: {
     label: "Clients",
     names: [
@@ -115,7 +117,6 @@ export const COPY: CopyConfig = {
     contactLabel: "Contact",
     socialsLabel: "Socials",
     backToTop: "Back to top",
-    tagline: "Design + development, in one team",
   },
   heroIndex: {
     workLabel: "Work",

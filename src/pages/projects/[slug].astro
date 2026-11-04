@@ -1,6 +1,7 @@
 ---
 import { Image } from "astro:assets";
 import Layout from "../../layouts/Layout.astro";
+import { COPY } from "../../config/copy";
 
 import anessaWeb from "../../../public/projects/anessa/anessa-web.png";
 import anessaBackground from '../../../public/projects/anessa/anessa_background.jpg';
@@ -92,9 +93,14 @@ const { title, image, about, services, backgroundImage, backgroundVideo, backgro
 <Layout title={title} description={about}>
   <section class="project-detail-hero">
     <div class="project-hero-frame">
-      <h1 class="project-hero-title font-ibm text-white">{title}</h1>
-      <div class="project-hero-image">
-        <Image src={image} alt={title} loading="eager" decoding="async" />
+      <p class="project-hero-eyebrow text-label font-ibm uppercase tracking-tight text-foreground-muted">
+        {COPY.caseStudyEyebrow}
+      </p>
+      <div class="project-hero-media">
+        <h1 class="project-hero-title font-ibm text-white">{title}</h1>
+        <div class="project-hero-image">
+          <Image src={image} alt={title} loading="eager" decoding="async" />
+        </div>
       </div>
     </div>
   </section>
@@ -420,7 +426,6 @@ const { title, image, about, services, backgroundImage, backgroundVideo, backgro
 <style>
   .project-detail-hero {
     position: relative;
-    min-height: 100svh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -428,10 +433,37 @@ const { title, image, about, services, backgroundImage, backgroundVideo, backgro
     overflow: hidden;
   }
 
+  /* F1-16 (@project-manager): `100svh` dulu dipasang tanpa breakpoint, jadi hero
+     ngikutin tinggi viewport di semua lebar — @375 (svh 812) isinya cuma ~175px,
+     78% kosong. `900` itu hasil ukur di satu viewport, bukan nilai spesifikasi:
+     dipaku jadi `md:min-h-[900px]` malah matiin sifat viewport-relative di
+     desktop (monitor 1080 harusnya hero 1080). Jadi: mobile content-driven,
+     desktop persis seperti sebelumnya. */
+  @media (min-width: 768px) {
+    .project-detail-hero {
+      min-height: 100svh;
+    }
+  }
+
   .project-hero-frame {
     position: relative;
     width: min(90vw, 1180px);
     margin: 0 auto;
+  }
+
+  /* Judul straddle di tepi atas GAMBAR, bukan di tepi atas frame — kalau
+     anchor-nya frame, dia bakal duduk persis di baris eyebrow (yang nabrak
+     glyph judul di 768–1024, di mana judul nowrap-nya hampir selebar frame).
+     Jadi media jadi positioning context, dan eyebrow punya ruang bersih di atas. */
+  .project-hero-media {
+    position: relative;
+  }
+
+  /* F1-16: eyebrow `Case study` — konstanta di tier label (12,96px @1440,
+     uppercase muted), bukan `Case study — {title}` (itu mengulang H1 tepat di
+     bawahnya; pola yang baru kita buang di 404). */
+  .project-hero-eyebrow {
+    margin: 0 0 1rem;
   }
 
   .project-hero-image {
@@ -472,11 +504,32 @@ const { title, image, about, services, backgroundImage, backgroundVideo, backgro
     pointer-events: none;
   }
 
-  @media (max-width: 768px) {
+  /* @768 ke atas: judul tetap straddle di tepi atas gambar (komposisi yang sudah
+     ada, nol perubahan tinggi hero 900) — jarak eyebrow dikunci lebih besar dari
+     separuh tinggi judul (86,4px / 2 = 43px @1440, 46px / 2 = 23px @768) biar
+     nggak nyentuh glyph-nya. */
+  @media (min-width: 768px) {
+    .project-hero-eyebrow {
+      margin-bottom: 3.75rem;
+    }
+  }
+
+  @media (max-width: 767px) {
+    /* Frame Project 375: eyebrow → judul → gambar, semuanya di alur, kiri.
+       Judul nggak lagi di-absolute biar hero mobile jadi content-driven
+       (351–379), bukan ikut tinggi viewport. */
+    .project-detail-hero {
+      padding: 2rem 2rem 2.75rem;
+    }
+
     .project-hero-title {
+      position: static;
+      transform: none;
+      text-align: left;
       font-size: clamp(1.75rem, 8vw, 3rem);
       white-space: normal;
-      max-width: 90%;
+      max-width: 100%;
+      margin: 0 0 1.25rem;
     }
   }
 

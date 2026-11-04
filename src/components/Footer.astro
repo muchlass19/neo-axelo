@@ -25,7 +25,12 @@ import {
   SITE,
 } from "../config/site";
 
-const { navLabel, contactLabel, socialsLabel, backToTop, tagline } = COPY.footer;
+const { navLabel, contactLabel, socialsLabel, backToTop } = COPY.footer;
+// Tagline baris bawah di-derive dari `services.items` (@creative-researcher,
+// ratifikasi @project-manager): daftar pekerjaan, bukan kalimat sifat, dan nggak
+// bisa basi kalau layanannya berubah. Di 320 dia wrap 2 baris — sengaja dibiarin:
+// hide-by-width beda kelas dari hide-by-empty-content (konvensi socials).
+const serviceTagline = COPY.services.items.map((item) => item.label).join(" · ");
 const pathname = Astro.url.pathname;
 
 const links = navLinks();
@@ -152,6 +157,6 @@ const CONTACT_VALUE_CLASS =
     class="mt-6 md:mt-8 border-t border-base-300/40 pt-3 flex flex-col gap-1 md:flex-row md:items-baseline md:justify-between font-ibm text-label text-foreground-muted"
   >
     <p class="m-0">© {new Date().getFullYear()} {SITE.name}</p>
-    {tagline && <p class="m-0">{tagline}</p>}
+    {serviceTagline && <p class="m-0">{serviceTagline}</p>}
   </div>
 </footer>
