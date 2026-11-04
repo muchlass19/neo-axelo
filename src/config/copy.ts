@@ -44,6 +44,11 @@ export interface CopyConfig {
     contactLabel: string;
     socialsLabel: string;
     backToTop: string;
+    /**
+     * Baris bawah footer, kanan (frame footer-v2). Turunan dari heading
+     * Services; pending sign-off @creative-researcher.
+     */
+    tagline: string;
   };
   /**
    * F1-14 (frame home 1440/375): strip index di bawah headline. Angka-nya
@@ -110,6 +115,7 @@ export const COPY: CopyConfig = {
     contactLabel: "Contact",
     socialsLabel: "Socials",
     backToTop: "Back to top",
+    tagline: "Design + development, in one team",
   },
   heroIndex: {
     workLabel: "Work",
