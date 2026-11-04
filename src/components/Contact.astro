@@ -25,7 +25,7 @@ const emailText = CONTACT.email.trim();
 
 <section
   id="contact"
-  class="px-4 md:px-12 py-20 md:py-32 border-t border-base-300/40"
+  class="px-4 md:px-12 max-[340px]:px-3 py-20 md:py-32 border-t border-base-300/40"
 >
   <p
     class="text-label-lg font-ibm uppercase tracking-tight text-foreground-muted"
@@ -65,7 +65,7 @@ const emailText = CONTACT.email.trim();
     }
     {
       emailText && (
-        <p class="text-label-lg font-ibm break-all" data-copy-source="email">
+        <p id="contact-email" class="text-label-lg font-ibm break-all" data-copy-source="email">
           <span class="text-foreground-muted">Email </span>
           {emailText}
         </p>
@@ -81,6 +81,10 @@ const emailText = CONTACT.email.trim();
   >
     {wa && <Button title={whatsappCta} size="sm" href={wa} />}
     {mail && <Button title={emailCta} size="sm" href={mail} variant="secondary" />}
-    {emailText && <CopyButton value={emailText} label={copyCta} />}
+    {
+      emailText && (
+        <CopyButton value={emailText} label={copyCta} targetId="contact-email" />
+      )
+    }
   </div>
 </section>

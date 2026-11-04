@@ -31,7 +31,9 @@ const phoneText = whatsappDisplay();
 const emailText = CONTACT.email.trim();
 ---
 
-<footer class="px-4 md:px-12 pt-16 md:pt-24 pb-10 border-t border-base-300/40">
+<footer
+  class="px-4 md:px-12 max-[340px]:px-3 pt-16 md:pt-24 pb-10 border-t border-base-300/40"
+>
   <div
     class="text-display font-archivo font-bold uppercase leading-none"
     data-reveal="clip"
@@ -82,10 +84,14 @@ const emailText = CONTACT.email.trim();
       </p>
       <div class="mt-3 flex flex-col gap-2 font-ibm text-label-lg md:items-end">
         {phoneText && <a href={wa}>{phoneText}</a>}
-        {emailText && <a href={mail} class="break-all">{emailText}</a>}
+        {emailText && <a id="footer-email" href={mail} class="break-all">{emailText}</a>}
         {
           emailText && (
-            <CopyButton value={emailText} label={COPY.contact.copyCta} />
+            <CopyButton
+              value={emailText}
+              label={COPY.contact.copyCta}
+              targetId="footer-email"
+            />
           )
         }
       </div>
