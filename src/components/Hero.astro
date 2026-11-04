@@ -10,22 +10,26 @@ const heroIntro = COPY.heroIntro.trim();
 
 <div class="px-4 md:px-12" id="top">
   <div class="mx-auto hero-copy p-8 h-full flex flex-col justify-center gap-8">
-    <h1
-      class="text-[clamp(2rem,11vw,16rem)] md:text-[clamp(4rem,16vw,16rem)] leading-[0.85] font-archivo font-bold"
-    >
-      AXELO.DEV
+    <!-- F1-02: type dari token (12vw, bukan 16vw — 16vw selalu kalah lawan box
+         dan itu sumber overflow +102 @1440). Mobile dipecah 2 baris lewat
+         `block md:inline`: SplitText bikin wrapper per baris, jadi mask-block
+         reveal-nya dapat stagger yang sama kayak desktop. -->
+    <h1 class="text-display font-archivo font-bold">
+      <span class="block md:inline">AXELO</span><span class="block md:inline"
+        >.DEV</span
+      >
     </h1>
   </div>
 
   <div
     class="grid md:grid-cols-2 py-4 my-4 md:py-12 md:my-12 uppercase tracking-tight font-ibm"
   >
-    <div class="text-lg text-foreground-muted md:text-foreground">
+    <div class="text-label-lg text-foreground-muted md:text-foreground">
       What we'll do
     </div>
     <div>
       {
-        heroIntro.length > 0 && <p class="text-2xl md:text-lg">{heroIntro}</p>
+        heroIntro.length > 0 && <p class="text-lead">{heroIntro}</p>
       }
 
       <div class="mt-4 w-full">
@@ -37,7 +41,9 @@ const heroIntro = COPY.heroIntro.trim();
   <div
     class="grid md:grid-cols-2 py-4 md:py-12 uppercase tracking-tight font-ibm"
   >
-    <div class="text-lg text-foreground-muted md:text-foreground">Socials</div>
+    <div class="text-label-lg text-foreground-muted md:text-foreground">
+      Socials
+    </div>
     <div class="text-label-lg grid grid-cols-3 gap-x-3 gap-y-1 md:flex md:justify-between">
       {
         SOCIALS.map((social) =>

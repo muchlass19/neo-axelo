@@ -48,8 +48,8 @@ const isDisabled = disabled ?? !href;
 const isInteractive = Boolean(href) && !disabled;
 
 const mainClasses = (cursor: string) =>
-  `button-main ${colorClasses} ${SIZE_CLASS[size]} whitespace-nowrap ${cursor} px-8 py-2 font-ibm font-semibold tracking-tight uppercase`;
-const shrinkClasses = `${colorClasses} ${SIZE_CLASS[size]} whitespace-nowrap px-4 py-2 font-ibm font-semibold uppercase`;
+  `button-main ${colorClasses} ${SIZE_CLASS[size]} whitespace-nowrap ${cursor} min-h-[var(--size-control)] max-[400px]:px-3 px-4 md:px-8 py-2 font-ibm font-semibold tracking-tight uppercase`;
+const shrinkClasses = `${colorClasses} ${SIZE_CLASS[size]} whitespace-nowrap min-h-[var(--size-control)] px-3 md:px-4 py-2 font-ibm font-semibold uppercase`;
 ---
 
 <div

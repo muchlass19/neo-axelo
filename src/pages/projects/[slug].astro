@@ -146,7 +146,7 @@ const { title, image, about, services, backgroundImage, backgroundVideo, backgro
     import gsap from "gsap";
     import { ScrollTrigger } from "gsap/ScrollTrigger";
     import { initRemeasure, onRemeasure } from "../../scripts/remeasure";
-    import { waitForEntryGate } from "../../scripts/entryGate";
+    import { waitForEntryGate, type EntryGateResult } from "../../scripts/entryGate";
 
     gsap.registerPlugin(ScrollTrigger);
     initRemeasure();
@@ -163,31 +163,38 @@ const { title, image, about, services, backgroundImage, backgroundVideo, backgro
         if (imageEl)
           gsap.set(imageEl, { scale: 1.5, transformOrigin: "center center" });
 
-        // F1-03: timeline dipegang paused — reveal cuma start setelah entry gate.
-        const tl = gsap.timeline({ paused: true, delay: 0.15 });
-        tl.to(imageBox, {
-          clipPath: "inset(0% 0 0 0)",
-          duration: 1.1,
-          ease: "power3.out",
-        });
+        const imageIsReady = (): boolean =>
+          Boolean(imageEl && imageEl.complete && imageEl.naturalWidth > 0);
 
-        if (imageEl) {
+        const revealInstantly = (): void => {
+          gsap.set(imageBox, { clipPath: "inset(0% 0 0 0)" });
+          if (imageEl) gsap.set(imageEl, { scale: 1 });
+        };
+
+        // F1-03b: kalau cap menang DAN gambarnya belum siap, durasi dipotong ke
+        // 0.7s — nggak ada gunanya animasi 1.1s buat kotak yang belum ada isinya.
+        const playReveal = (gateResult: EntryGateResult): void => {
+          const duration =
+            gateResult === "timeout" && !imageIsReady() ? 0.7 : 1.1;
+
+          const tl = gsap.timeline();
           tl.to(
-            imageEl,
-            {
-              scale: 1,
-              duration: 1.1,
-              ease: "power3.out",
-            },
+            imageBox,
+            { clipPath: "inset(0% 0 0 0)", duration, ease: "power3.out" },
             0,
           );
-        }
+          if (imageEl) {
+            tl.to(imageEl, { scale: 1, duration, ease: "power3.out" }, 0);
+          }
+        };
 
         // Entry gate (spec @motion-designer): start setelah gambar ke-decode DAN
-        // satu siklus remeasure selesai, cap 600ms. Tanpa ini, begitu overlay
-        // non-home dibuang, 1.1s pertama cuma reveal kotak kosong.
-        void waitForEntryGate({ imageTargets: [imageBox] }).then(() => {
-          tl.play();
+        // satu siklus remeasure selesai, cap 600ms — biar 1.1s pertama bukan
+        // reveal kotak kosong. Reduced motion: tampil instan, nol animasi.
+        const revealMedia = gsap.matchMedia();
+        revealMedia.add("(prefers-reduced-motion: reduce)", revealInstantly);
+        revealMedia.add("(prefers-reduced-motion: no-preference)", () => {
+          void waitForEntryGate({ imageTargets: [imageBox] }).then(playReveal);
         });
       } catch {
         // Reveal gagal: biarkan gambar tampil apa adanya, tanpa console noise.
