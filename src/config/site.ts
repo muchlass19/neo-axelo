@@ -88,10 +88,10 @@ export const CONTACT_CTA: ContactCtaConfig = {
 };
 
 export const NAV_LINKS: readonly NavLink[] = [
-  { label: "Work", id: "work", enabled: true },
   // Urutan mengikuti design (@project-manager): Work · Clients · Services · Contact.
   // Aktifkan saat section-nya ada: satu baris per section.
   { label: "Clients", id: "clients", enabled: true },
+  { label: "Work", id: "work", enabled: true },
   { label: "Services", id: "services", enabled: true },
   { label: "Contact", id: "contact", enabled: true },
   { label: "About", id: "about", enabled: false },

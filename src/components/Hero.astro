@@ -2,7 +2,7 @@
 import Button from "./ui/Button.astro";
 import { COPY } from "../config/copy";
 import { isValidUrl, SOCIALS } from "../config/site";
-import { PROJECTS } from "../data/projects";
+// import { PROJECTS } from "../data/projects";
 
 // T-04: teks hero dari @creative-researcher (src/config/copy.ts). Selama masih
 // kosong, paragrafnya nggak dirender — bukan lorem ipsum.
@@ -13,13 +13,13 @@ const heroIntro = COPY.heroIntro.trim();
 // Urutan (kualifier dulu, lalu tiga counter sebagai satu grup) dari
 // @creative-researcher: pola `NOUN + angka` yang diakhiri frasa tanpa angka
 // kebaca orphan, jadi item non-angka dipindah ke depan.
-const pad = (value: number): string => String(value).padStart(2, "0");
-const heroIndexLine = [
-  COPY.heroIndex.location,
-  `${COPY.heroIndex.workLabel} ${pad(PROJECTS.length)}`,
-  `${COPY.heroIndex.clientsLabel} ${pad(COPY.clients.names.length)}`,
-  `${COPY.heroIndex.servicesLabel} ${pad(COPY.services.items.length)}`,
-].join("  /  ");
+// const pad = (value: number): string => String(value).padStart(2, "0");
+// const heroIndexLine = [
+//   COPY.heroIndex.location,
+//   `${COPY.heroIndex.workLabel} ${pad(PROJECTS.length)}`,
+//   `${COPY.heroIndex.clientsLabel} ${pad(COPY.clients.names.length)}`,
+//   `${COPY.heroIndex.servicesLabel} ${pad(COPY.services.items.length)}`,
+// ].join("  /  ");
 ---
 
 <div class="px-4 md:px-12" id="top">
@@ -33,15 +33,6 @@ const heroIndexLine = [
         >.DEV</span
       >
     </h1>
-
-    <p
-      class="text-label font-ibm uppercase tracking-tight text-foreground-muted"
-      data-reveal="fade"
-      data-reveal-duration="0.5"
-      data-reveal-delay="0.3"
-    >
-      {heroIndexLine}
-    </p>
   </div>
 
   <div
