@@ -68,8 +68,9 @@ const mainClasses = (cursor: string) =>
         class={mainClasses("inline-flex items-center justify-center")}
         aria-label={ariaLabel}
       >
-        <span class="button-label" aria-hidden="true">
-          {title}
+        <span class="button-label-window">
+          <span class="button-label" aria-hidden="true">{title}</span>
+          <span class="button-label-ghost" aria-hidden="true">{title}</span>
         </span>
         <span class="sr-only">{ariaLabel ?? title}</span>
       </a>
@@ -82,8 +83,9 @@ const mainClasses = (cursor: string) =>
         }`}
         aria-label={ariaLabel}
       >
-        <span class="button-label" aria-hidden="true">
-          {title}
+        <span class="button-label-window">
+          <span class="button-label" aria-hidden="true">{title}</span>
+          <span class="button-label-ghost" aria-hidden="true">{title}</span>
         </span>
         <span class="sr-only">{ariaLabel ?? title}</span>
       </button>
@@ -103,6 +105,9 @@ const mainClasses = (cursor: string) =>
     wrapper: HTMLElement;
     main: HTMLElement;
     label: HTMLElement;
+    /** Baris duplikat yang masuk dari bawah — dia yang di-scramble, label asli
+     *  tetap utuh saat diam (aturan @motion-designer). */
+    ghost: HTMLElement;
     scramble: gsap.core.Tween | null;
   }
 
@@ -118,14 +123,17 @@ const mainClasses = (cursor: string) =>
   // Sekarang yang perlu diukur cuma lebar pill, karena scramble nulis innerText
   // per frame — tanpa width lock, lebarnya goyang tiap huruf berubah.
   function setupAnimation(entry: ButtonEntry): void {
-    const { main, label } = entry;
+    const { main, label, ghost } = entry;
     const originalText = label.dataset.original ?? label.textContent ?? "";
     label.dataset.original = originalText;
+    ghost.dataset.original = originalText;
 
     entry.scramble?.kill();
     entry.scramble = null;
+    entry.wrapper.classList.remove("is-rolling");
+    ghost.textContent = originalText;
 
-    // Lepas kunci lebar sebelum mengukur, kalau nggak lebar metrik fallback
+    // Lepas kunci lebar sebelum mengukur, kalau nggak lebar metrik font fallback
     // yang kepakai selamanya.
     main.style.width = "";
     main.style.textAlign = "";
@@ -136,7 +144,7 @@ const mainClasses = (cursor: string) =>
   }
 
   function playScramble(entry: ButtonEntry): void {
-    const { label } = entry;
+    const { ghost: label } = entry;
     const originalText = label.dataset.original ?? "";
     const state = { step: 0 };
 
@@ -169,11 +177,13 @@ const mainClasses = (cursor: string) =>
   function resetLabel(entry: ButtonEntry): void {
     entry.scramble?.kill();
     entry.scramble = null;
-    entry.label.textContent =
-      entry.label.dataset.original ?? entry.label.textContent;
+    // Label asli nggak pernah ditulis ulang; yang dibalikin cuma baris duplikat.
+    entry.ghost.textContent =
+      entry.ghost.dataset.original ?? entry.label.textContent ?? "";
   }
 
   function teardown(entry: ButtonEntry): void {
+    entry.wrapper.classList.remove("is-rolling");
     resetLabel(entry);
     entry.main.style.width = "";
     entry.main.style.textAlign = "";
@@ -188,10 +198,11 @@ const mainClasses = (cursor: string) =>
 
       const main = wrapper.querySelector<HTMLElement>(".button-main");
       const label = wrapper.querySelector<HTMLElement>(".button-label");
-      if (!main || !label) return;
+      const ghost = wrapper.querySelector<HTMLElement>(".button-label-ghost");
+      if (!main || !label || !ghost) return;
       if (main instanceof HTMLButtonElement && main.disabled) return;
 
-      found.push({ wrapper, main, label, scramble: null });
+      found.push({ wrapper, main, label, ghost, scramble: null });
     });
     return found;
   }
@@ -202,9 +213,11 @@ const mainClasses = (cursor: string) =>
     wrapper.__btnBound = true;
 
     const enter = (): void => {
+      entry.wrapper.classList.add("is-rolling");
       playScramble(entry);
     };
     const leave = (): void => {
+      entry.wrapper.classList.remove("is-rolling");
       resetLabel(entry);
     };
 
@@ -251,3 +264,56 @@ const mainClasses = (cursor: string) =>
     bootstrap();
   }
 </script>
+
+<style>
+  /* Roll C (@motion-designer), dengan syarat window dari @figcraft-designer:
+     window-nya setinggi satu baris label (diambil dari flow label aslinya, bukan
+     angka) + `overflow: hidden`, di dalam padding vertikal pill — jadi tinggi pill
+     NOL berubah. Yang gerak cuma transform: label asli naik keluar, duplikat masuk
+     dari bawah. Nol geometri pill yang berubah, nol scale. */
+  .button-label-window {
+    position: relative;
+    display: block;
+    overflow: hidden;
+  }
+
+  .button-label {
+    display: block;
+  }
+
+  .button-label-ghost {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    display: block;
+  }
+
+  /* Keluar 0.25s power2.in (default), masuk 0.35s power3.out (state rolling). */
+  .button-label,
+  .button-label-ghost {
+    transition: transform 0.25s cubic-bezier(0.55, 0.085, 0.68, 0.53);
+  }
+
+  .btn-wrapper.is-rolling .button-label,
+  .btn-wrapper.is-rolling .button-label-ghost {
+    transform: translateY(-100%);
+    transition: transform 0.35s cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+
+  /* Baseline B: di bawah reduced-motion roll + scramble mati, hover jadi color
+     flip saja — satu aturan buat primary dan secondary (dua-duanya invert). */
+  @media (prefers-reduced-motion: reduce) {
+    .btn-wrapper[data-cta="interactive"] .button-main {
+      transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+    }
+
+    .btn-wrapper[data-cta="interactive"] .button-main:hover,
+    .btn-wrapper[data-cta="interactive"] .button-main:focus-visible {
+      background-color: var(--color-base-100);
+      color: var(--color-highlight);
+    }
+  }
+</style>
