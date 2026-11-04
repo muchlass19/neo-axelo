@@ -1,7 +1,9 @@
 ---
 import "../styles/global.css";
+import "../styles/reveal.css";
 // import "../styles/preloader.css";
 
+import Footer from "../components/Footer.astro";
 import Navbar from "../components/Navbar.astro";
 import Preloader from "../components/Preloader.astro";
 import { COPY } from "../config/copy";
@@ -23,6 +25,9 @@ const pageTitle = title ? `${title} — ${SITE.name}` : SITE.name;
 const baseUrl = siteBaseUrl();
 const canonical = baseUrl ? new URL(Astro.url.pathname, baseUrl).href : "";
 const metaDescription = (description ?? COPY.metaDescription).trim();
+// F1-09b: og:image = aset statis 1200×630, ikut fail-closed kayak canonical
+// (URL absolut butuh domain). Belum ada aset per-project.
+const ogImage = baseUrl ? `${baseUrl}/og-default.png` : "";
 
 // F1-03: brand loader cuma di home.
 const isHome = Astro.url.pathname === "/";
@@ -59,13 +64,28 @@ const isHome = Astro.url.pathname === "/";
         </>
       )
     }
+    {
+      ogImage && (
+        <>
+          <meta property="og:image" content={ogImage} />
+          <meta property="og:image:width" content="1200" />
+          <meta property="og:image:height" content="630" />
+          <meta name="twitter:card" content="summary_large_image" />
+        </>
+      )
+    }
   </head>
   <body class="bg-base-100 text-foreground">
     <Preloader full={isHome} />
     <Navbar />
     <slot />
+    <Footer />
 
     <script>
+      import { initReveals } from "../scripts/reveal";
+
+      initReveals();
+
       const originalTitle = document.title;
 
       document.addEventListener("visibilitychange", () => {

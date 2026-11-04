@@ -147,6 +147,7 @@ const { title, image, about, services, backgroundImage, backgroundVideo, backgro
     import { ScrollTrigger } from "gsap/ScrollTrigger";
     import { initRemeasure, onRemeasure } from "../../scripts/remeasure";
     import { waitForEntryGate, type EntryGateResult } from "../../scripts/entryGate";
+    import { splitIntoVisualLines } from "../../scripts/splitLines";
 
     gsap.registerPlugin(ScrollTrigger);
     initRemeasure();
@@ -269,57 +270,8 @@ const { title, image, about, services, backgroundImage, backgroundVideo, backgro
       initScrollReveals();
     }
 
-    // Split manual per baris visual tanpa plugin SplitText:
-    // pecah jadi kata (inline-block agar offsetTop stabil), kelompokkan
-    // berdasarkan offsetTop, bungkus tiap baris pakai mask.
-    const splitIntoVisualLines = (desc: HTMLElement): HTMLElement[] => {
-      if (!desc.dataset.original) {
-        desc.dataset.original = (desc.textContent ?? "")
-          .trim()
-          .replace(/\s+/g, " ");
-      }
-      const words = (desc.dataset.original ?? "").split(" ").filter(Boolean);
-      desc.innerHTML = "";
-
-      const wordEls = words.map((word) => {
-        const s = document.createElement("span");
-        s.className = "about-word";
-        s.textContent = word;
-        desc.appendChild(s);
-        desc.appendChild(document.createTextNode(" "));
-        return s;
-      });
-
-      const grouped: HTMLElement[][] = [];
-      let current: HTMLElement[] = [];
-      let lastTop: number | null = null;
-      wordEls.forEach((el) => {
-        if (lastTop === null || Math.abs(el.offsetTop - lastTop) > 2) {
-          if (current.length) grouped.push(current);
-          current = [el];
-          lastTop = el.offsetTop;
-        } else {
-          current.push(el);
-        }
-      });
-      if (current.length) grouped.push(current);
-
-      desc.innerHTML = "";
-      return grouped.map((lineWords) => {
-        const mask = document.createElement("span");
-        mask.className = "about-line-mask";
-        const inner = document.createElement("span");
-        inner.className = "about-line";
-        lineWords.forEach((w, i) => {
-          inner.appendChild(w);
-          if (i < lineWords.length - 1)
-            inner.appendChild(document.createTextNode(" "));
-        });
-        mask.appendChild(inner);
-        desc.appendChild(mask);
-        return inner;
-      });
-    };
+    // Split baris dipakai bersama: `src/scripts/splitLines.ts` (reuse, bukan
+    // splitter kedua) — dipakai juga oleh reveal.ts di section home.
 
     let aboutTrigger: any = null;
     let aboutObserver: IntersectionObserver | null = null;

@@ -1,9 +1,16 @@
 ---
 import Button from "./ui/Button.astro";
-import { CONTACT_CTA, contactHref, navLinks } from "../config/site";
+import { CONTACT_CTA, contactHref, navLinks, sectionHref } from "../config/site";
 
 const links = navLinks();
-const ctaHref = contactHref();
+const pathname = Astro.url.pathname;
+
+// CTA bisa berupa anchor section (`#contact`). Di halaman non-home anchor itu
+// nggak ada, jadi diarahkan ke `/#contact` — biar nggak jadi link mati.
+const rawCtaHref = contactHref();
+const ctaHref = rawCtaHref.startsWith("#")
+  ? sectionHref(rawCtaHref.slice(1), pathname)
+  : rawCtaHref;
 ---
 
 <!-- T-03: nav sticky + tinggi di-publish ke CSS var --nav-h (dipakai handler
@@ -27,7 +34,7 @@ const ctaHref = contactHref();
         >
           {links.map((link) => (
             <a
-              href={`#${link.id}`}
+              href={sectionHref(link.id, pathname)}
               class="transition-colors hover:text-highlight focus-visible:text-highlight"
             >
               {link.label}

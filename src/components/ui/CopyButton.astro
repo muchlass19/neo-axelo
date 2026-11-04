@@ -1,0 +1,125 @@
+---
+/**
+ * Tombol copy, kontrak dari @backend-dev (F1-07):
+ * - `navigator.clipboard` cuma ada di secure context + butuh user gesture.
+ *   QA lewat `http://` + IP LAN = API-nya `undefined`, jadi WAJIB ada cabang
+ *   fallback: seleksi teks, label "Select to copy" — bukan "Copied".
+ * - Label baru berubah setelah `await writeText()` resolve; gagal → status error.
+ *   Tombol yang bilang "Copied" padahal clipboard kosong lebih buruk daripada
+ *   tombol yang nggak ada.
+ * - Yang di-copy SELALU `value` (nilai asli dari config), bukan `textContent`
+ *   tombol — label bisa ter-mask/terpotong dan user nempel string rusak tanpa
+ *   sadar sampai kirimannya gagal.
+ * - Status diumumkan lewat `role="status"` + `aria-live="polite"`.
+ */
+interface Props {
+  /** Nilai asli yang di-copy, contoh: "muchlas@neodigital.co.id". */
+  value: string;
+  label: string;
+  copiedLabel?: string;
+  fallbackLabel?: string;
+  variant?: "primary" | "secondary";
+}
+
+const {
+  value,
+  label,
+  copiedLabel = "Copied",
+  fallbackLabel = "Select to copy",
+  variant = "secondary",
+} = Astro.props;
+
+const colorClasses =
+  variant === "secondary"
+    ? "border border-highlight text-highlight"
+    : "bg-highlight text-base-100";
+---
+
+<div class="copy-wrapper inline-flex items-center gap-2">
+  <button
+    type="button"
+    class={`${colorClasses} text-sm whitespace-nowrap inline-flex items-center justify-center gap-2 min-h-[var(--size-control)] px-4 py-2 font-ibm font-semibold tracking-tight uppercase cursor-pointer`}
+    data-copy-value={value}
+    data-copy-label={copiedLabel}
+    data-copy-fallback={fallbackLabel}
+  >
+    <span class="copy-label">{label}</span>
+  </button>
+  <span
+    class="sr-only"
+    role="status"
+    aria-live="polite"
+    data-copy-status></span>
+</div>
+
+<script>
+  const COPY_RESET_MS = 2400;
+  const HELPER_TTL_MS = 8000;
+
+  function announce(status: HTMLElement | null, message: string): void {
+    if (status) status.textContent = message;
+  }
+
+  function waitForSelectionCleanup(helper: HTMLTextAreaElement): void {
+    window.setTimeout(() => helper.remove(), HELPER_TTL_MS);
+  }
+
+  document
+    .querySelectorAll<HTMLButtonElement>("button[data-copy-value]")
+    .forEach((button) => {
+      const value = button.dataset.copyValue ?? "";
+      const copiedLabel = button.dataset.copyLabel ?? "Copied";
+      const fallbackLabel = button.dataset.copyFallback ?? "Select to copy";
+      const labelEl = button.querySelector<HTMLElement>(".copy-label");
+      const baseLabel = labelEl?.textContent ?? "";
+      const status =
+        button.parentElement?.querySelector<HTMLElement>("[data-copy-status]") ??
+        null;
+
+      if (!value) return;
+
+      let resetTimer = 0;
+      const scheduleReset = (): void => {
+        window.clearTimeout(resetTimer);
+        resetTimer = window.setTimeout(() => {
+          if (labelEl) labelEl.textContent = baseLabel;
+          announce(status, "");
+        }, COPY_RESET_MS);
+      };
+
+      button.addEventListener("click", async () => {
+        const clipboardWrite = navigator.clipboard?.writeText;
+
+        if (clipboardWrite) {
+          try {
+            // Ambil dulu, baru ngaku "Copied".
+            await clipboardWrite.call(navigator.clipboard, value);
+            if (labelEl) labelEl.textContent = copiedLabel;
+            announce(status, `${copiedLabel}: ${value}`);
+            scheduleReset();
+            return;
+          } catch {
+            /* jatuh ke fallback di bawah — jangan bilang "Copied" */
+          }
+        }
+
+        // Fallback: seleksi teks aslinya dan bilang apa adanya.
+        const helper = document.createElement("textarea");
+        helper.value = value;
+        helper.setAttribute("readonly", "");
+        helper.setAttribute("aria-hidden", "true");
+        helper.style.cssText =
+          "position:fixed;top:-1000px;left:-1000px;opacity:0;";
+        document.body.appendChild(helper);
+        helper.select();
+
+        if (labelEl) labelEl.textContent = fallbackLabel;
+        announce(
+          status,
+          `Clipboard tidak tersedia. Teks ${value} sudah dipilih — tekan Ctrl atau Command + C.`,
+        );
+        waitForSelectionCleanup(helper);
+        scheduleReset();
+      });
+    });
+</script>

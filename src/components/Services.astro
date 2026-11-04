@@ -1,0 +1,46 @@
+---
+// F1-06 — Services.
+// Default @project-manager + presisi @figcraft-designer: 3 item DITUMPUK (bukan
+// grid 3 kolom — copy-nya 3 baris/item di mobile), dan di dalam tiap baris
+// label kiri / deskripsi kanan mulai md (`md:grid-cols-[14rem_1fr]`), mobile
+// label di atas deskripsi.
+import { COPY } from "../config/copy";
+
+const { label, heading, items } = COPY.services;
+---
+
+<section
+  id="services"
+  class="px-4 md:px-12 py-16 md:py-32 border-t border-base-300/40"
+>
+  <div class="grid gap-4 md:grid-cols-[14rem_1fr] md:gap-8 items-baseline">
+    <p class="text-label-lg font-ibm uppercase tracking-tight text-foreground-muted">
+      {label}
+    </p>
+    <h2
+      class="text-statement font-ibm max-w-2xl"
+      data-reveal="clip"
+      data-reveal-duration="0.8"
+    >
+      {heading}
+    </h2>
+  </div>
+
+  <div
+    class="mt-10 md:mt-16 md:pl-[calc(14rem+2rem)] flex flex-col"
+    data-reveal="lines"
+    data-reveal-duration="0.7"
+    data-reveal-stagger="0.08"
+  >
+    {
+      items.map((item) => (
+        <div class="border-t border-base-300/60 py-6 grid gap-2 md:grid-cols-[14rem_1fr] md:gap-8">
+          <p class="text-label font-ibm uppercase tracking-tight text-foreground-muted">
+            {item.label}
+          </p>
+          <p class="text-lead font-ibm max-w-2xl">{item.description}</p>
+        </div>
+      ))
+    }
+  </div>
+</section>

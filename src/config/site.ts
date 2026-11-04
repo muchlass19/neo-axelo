@@ -83,15 +83,17 @@ export const CONTACT: ContactConfig = {
 
 export const CONTACT_CTA: ContactCtaConfig = {
   label: "Let's Work Together",
-  sectionId: "",
+  // F1-07: section contact ada → CTA nav/mobile arahin ke sana (bukan lagi WA).
+  sectionId: "contact",
 };
 
 export const NAV_LINKS: readonly NavLink[] = [
   { label: "Work", id: "work", enabled: true },
-  // Aktifkan saat section-nya ada (Fase 1): satu baris per section.
-  { label: "Services", id: "services", enabled: false },
+  // Aktifkan saat section-nya ada: satu baris per section.
+  { label: "Services", id: "services", enabled: true },
+  { label: "Clients", id: "clients", enabled: true },
+  { label: "Contact", id: "contact", enabled: true },
   { label: "About", id: "about", enabled: false },
-  { label: "Contact", id: "contact", enabled: false },
 ];
 
 export const SOCIALS: readonly SocialLink[] = [
@@ -166,6 +168,15 @@ export function contactHref(): string {
 
 export function navLinks(): NavLink[] {
   return NAV_LINKS.filter((link) => link.enabled);
+}
+
+/**
+ * Href anchor yang benar dari halaman mana pun: di home `#services`, di
+ * halaman lain `/#services` — biar link nav/footer nggak jadi anchor mati di
+ * halaman project dan 404.
+ */
+export function sectionHref(id: string, pathname: string): string {
+  return pathname === "/" ? `#${id}` : `/#${id}`;
 }
 
 /**

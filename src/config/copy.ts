@@ -4,6 +4,11 @@
  * Aturan: string kosong = tidak dirender. Jangan pernah isi lorem ipsum.
  */
 
+export interface ServiceItem {
+  label: string;
+  description: string;
+}
+
 export interface CopyConfig {
   /** T-04: paragraf hero, voice studio-dev. */
   heroIntro: string;
@@ -13,6 +18,33 @@ export interface CopyConfig {
    * kepotong Google di ~155-160 dan bikin hero & SERP punya teks identik.
    */
   metaDescription: string;
+  /** F1-05: client index dalam bentuk type (nol aset logo, nol marquee). */
+  clients: {
+    label: string;
+    names: string[];
+  };
+  /** F1-06. */
+  services: {
+    label: string;
+    heading: string;
+    items: ServiceItem[];
+  };
+  /** F1-07. */
+  contact: {
+    label: string;
+    display: string;
+    subline: string;
+    whatsappCta: string;
+    emailCta: string;
+    copyCta: string;
+  };
+  /** F1-04. */
+  footer: {
+    navLabel: string;
+    contactLabel: string;
+    socialsLabel: string;
+    backToTop: string;
+  };
 }
 
 export const COPY: CopyConfig = {
@@ -20,4 +52,51 @@ export const COPY: CopyConfig = {
     "Axelo builds websites and digital products for brands in Indonesia — from consumer launches to automotive platforms and part catalogs. Design and development sit in one team, so the people who plan the experience are the ones who ship it. Sites, progressive web apps, catalogs — built to be used, not just looked at.",
   metaDescription:
     "Axelo Dev builds websites, digital products, and progressive web apps for brands in Indonesia — design and development in one team, from wireframe to launch.",
+  clients: {
+    label: "Clients",
+    names: [
+      "Astra",
+      "BYD",
+      "Chery",
+      "Daihatsu",
+      "BCA Life",
+      "Danareksa",
+    ],
+  },
+  services: {
+    label: "What we do",
+    heading: "Design and build, in one team.",
+    items: [
+      {
+        label: "UI Design",
+        description:
+          "Layout, type, colour, and motion, designed against real content so the page still holds after launch.",
+      },
+      {
+        label: "UX Design",
+        description:
+          "Models, variants, price lists, part numbers: structured so buyers and workshop staff both find what they need.",
+      },
+      {
+        label: "Web Development",
+        description:
+          "Astro, TypeScript, Tailwind, and GSAP front ends, plus progressive web apps that install and work offline.",
+      },
+    ],
+  },
+  contact: {
+    label: "Contact",
+    display: "Let's build it.",
+    subline:
+      "Tell us what you're building and who it's for. A few lines is enough to start.",
+    whatsappCta: "Chat on WhatsApp",
+    emailCta: "Email us",
+    copyCta: "Copy email",
+  },
+  footer: {
+    navLabel: "Menu",
+    contactLabel: "Contact",
+    socialsLabel: "Socials",
+    backToTop: "Back to top",
+  },
 };
